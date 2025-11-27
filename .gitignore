@@ -34,3 +34,19 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Supabase CLI の一時ディレクトリ（自動生成物）
+supabase/.temp/
+
+# IDE の設定（個人固有） - VSCode
+.vscode/
+
+# pnpm/その他のデバッグログ
+*.log
+
+# 一時 DB
+*.sqlite
+*.db
+
+# OS/IDE によるローカルキャッシュ
+.cache/
