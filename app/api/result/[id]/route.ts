@@ -27,4 +27,4 @@ export async function GET(req: Request, { params }: { params?: { id?: string } }
   }
 }
 
-export default GET
+// Exported as named method only per Next.js App Router requirements

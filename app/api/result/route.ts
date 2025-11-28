@@ -36,4 +36,4 @@ export async function POST(req: Request) {
   }
 }
 
-export default POST
+// Exported as named method only per Next.js App Router requirements
