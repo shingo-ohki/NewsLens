@@ -3,16 +3,33 @@ import analyzeWithLLM from '../../../lib/llm'
 import extractJSONFromRaw from '../../../lib/validators/parseJSONFromRaw'
 import { safeParseNewsLensResult, flattenZodErrors } from '../../../lib/validators/newsLensSchema'
 import { buildCorrectionPrompt } from '../../../lib/llm/prompt'
+import extractArticleContent from '../../../lib/extraction/extractor'
 
 export async function POST(req: Request) {
   try {
     const body = await req.json()
-    const { inputText } = body
-    if (!inputText || typeof inputText !== 'string' || inputText.trim().length === 0) {
-      return NextResponse.json({ error: 'inputText is required' }, { status: 400 })
+    const { inputText, url } = body
+    if (inputText && url) {
+      return NextResponse.json({ error: 'Specify either url or inputText, not both.' }, { status: 400 })
     }
 
-    const llmResp = await analyzeWithLLM(inputText, { mock: process.env.USE_MOCK_LLM === 'true' })
+    let textForAnalysis: string | undefined
+    let warnings: string[] = []
+
+    if (url) {
+      const extraction = await extractArticleContent(url)
+      if (extraction.status === 'fail') {
+        return NextResponse.json({ error: 'Extraction failed. Please paste article text manually.', warnings: extraction.warnings }, { status: 400 })
+      }
+      textForAnalysis = extraction.content
+      warnings = extraction.warnings ?? []
+    } else if (inputText && typeof inputText === 'string' && inputText.trim().length > 0) {
+      textForAnalysis = inputText
+    } else {
+      return NextResponse.json({ error: 'Either url or inputText is required' }, { status: 400 })
+    }
+
+    const llmResp = await analyzeWithLLM(textForAnalysis, { mock: process.env.USE_MOCK_LLM === 'true' })
     const rawOutput = llmResp.raw
 
     // Extract JSON
@@ -20,30 +37,30 @@ export async function POST(req: Request) {
     try {
       parsed = extractJSONFromRaw(rawOutput)
     } catch (e: any) {
-      return NextResponse.json({ validated: false, errors: ['Could not extract JSON from LLM output'], rawOutput }, { status: 400 })
+      return NextResponse.json({ validated: false, errors: ['Could not extract JSON from LLM output'], rawOutput, warnings }, { status: 400 })
     }
 
     // Validate using zod
     const safe = safeParseNewsLensResult(parsed)
     if (safe.success) {
-      return NextResponse.json({ validated: true, result: safe.data, rawOutput, model: 'gpt-4o-mini' })
+      return NextResponse.json({ validated: true, result: safe.data, rawOutput, model: 'gpt-4o-mini', warnings })
     }
 
     // Correction flow: attempt one retry with corrective instruction
     const errors = flattenZodErrors(safe.error)
     try {
-      const correctionPrompt = buildCorrectionPrompt(rawOutput, inputText)
-      const retry = await analyzeWithLLM(inputText, { mock: process.env.USE_MOCK_LLM === 'true', promptOverride: correctionPrompt })
+      const correctionPrompt = buildCorrectionPrompt(rawOutput, textForAnalysis)
+      const retry = await analyzeWithLLM(textForAnalysis, { mock: process.env.USE_MOCK_LLM === 'true', promptOverride: correctionPrompt })
       const retryParsed = extractJSONFromRaw(retry.raw)
       const retrySafe = safeParseNewsLensResult(retryParsed)
       if (retrySafe.success) {
-        return NextResponse.json({ validated: true, result: retrySafe.data, rawOutput: retry.raw, model: 'gpt-4o-mini' })
+        return NextResponse.json({ validated: true, result: retrySafe.data, rawOutput: retry.raw, model: 'gpt-4o-mini', warnings })
       }
       const retryErrors = flattenZodErrors(retrySafe.error)
-      return NextResponse.json({ validated: false, errors: [...errors, ...retryErrors], rawOutput: retry.raw }, { status: 400 })
+      return NextResponse.json({ validated: false, errors: [...errors, ...retryErrors], rawOutput: retry.raw, warnings }, { status: 400 })
     } catch (e: any) {
       // If correction throws or fails, return original errors
-      return NextResponse.json({ validated: false, errors, rawOutput }, { status: 400 })
+      return NextResponse.json({ validated: false, errors, rawOutput, warnings }, { status: 400 })
     }
   } catch (err: any) {
     console.error('analyze error', err)
