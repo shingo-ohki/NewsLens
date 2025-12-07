@@ -19,7 +19,11 @@ npm run dev
 
 4. Tests
 ```bash
-npx vitest
+# unit/integration (Vitest)
+npm test
+
+# e2e (Playwright)
+npm run test:e2e
 ```
 
 Notes:
