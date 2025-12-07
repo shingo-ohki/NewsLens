@@ -8,6 +8,7 @@
   },
   "scripts": {
     "test": "vitest run",
+    "test:e2e": "playwright test",
     "dev": "next dev",
     "e2e": "playwright test",
     "build": "next build",
