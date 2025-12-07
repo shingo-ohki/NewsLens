@@ -55,6 +55,8 @@ test.describe('Analyze flow', () => {
     })
 
     await page.goto('/')
+    // Switch to text input mode
+    await page.locator('button', { hasText: 'テキスト直接入力' }).click()
     // Ensure textarea is available
     const textarea = page.locator('textarea')
     await expect(textarea).toBeVisible()

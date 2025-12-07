@@ -12,6 +12,12 @@ export async function POST(req: Request) {
     if (inputText && url) {
       return NextResponse.json({ error: 'Specify either url or inputText, not both.' }, { status: 400 })
     }
+    if (url !== undefined && (typeof url !== 'string' || url.trim().length === 0)) {
+      return NextResponse.json({ error: 'url must be a non-empty string' }, { status: 400 })
+    }
+    if (inputText !== undefined && (typeof inputText !== 'string' || inputText.trim().length === 0)) {
+      return NextResponse.json({ error: 'inputText must be a non-empty string' }, { status: 400 })
+    }
 
     let textForAnalysis: string | undefined
     let warnings: string[] = []
