@@ -53,7 +53,9 @@ function buildWarnings(contentLength: number, parsed: ReturnType<Readability['pa
  * - Fetches the HTML from the provided URL and parses it using Readability.
  * - Aborts the request if it takes longer than 10 seconds.
  * - Blocks access to private IP ranges, localhost, and non-HTTP(S) protocols to prevent SSRF attacks.
- * - Follows HTTP to HTTPS redirects and www subdomain additions (maximum 1 redirect).
+ * - Handles the first redirect only (up to 1 redirect from the initial request):
+ *   * HTTP → HTTPS upgrades on the same host with identical path, query, and fragment
+ *   * www subdomain additions/removals with identical path, query, and fragment
  * - Limits response size to 10MB if Content-Length header is present.
  * - Returns warnings if the content is too short (<500 chars), too long (>5000 chars),
  *   or if metadata (title/byline) is missing, indicating it may not be a news article.
@@ -98,15 +100,22 @@ export async function extractArticleContent(url: string): Promise<ExtractionResu
       }
       
       const originalUrl = new URL(url)
+      // HTTPSアップグレード判定時、パス・ホスト名・クエリ・フラグメントがすべて一致している場合のみ許可する
+      // （クエリやフラグメントが異なる場合は別リソースとみなしてリダイレクトを拒否することで、意図しないリソースへの遷移やパラメータ改ざんを防止）
       const isSameHostHttpsUpgrade = 
         originalUrl.protocol === 'http:' &&
         redirectUrl.protocol === 'https:' &&
         originalUrl.hostname === redirectUrl.hostname &&
-        originalUrl.pathname === redirectUrl.pathname
+        originalUrl.pathname === redirectUrl.pathname &&
+        originalUrl.search === redirectUrl.search &&
+        originalUrl.hash === redirectUrl.hash
       
+      // wwwサブドメインの追加/削除を許可する条件では、パス（pathname）とクエリパラメータ（search）が一致していることを確認する。
+      // フラグメント（hash）はサーバーに送信されないため、比較しないのは意図的な設計です。
       const isWwwSubdomainAddition = 
         originalUrl.protocol === redirectUrl.protocol &&
         originalUrl.pathname === redirectUrl.pathname &&
+        originalUrl.search === redirectUrl.search &&
         (redirectUrl.hostname === 'www.' + originalUrl.hostname ||
          originalUrl.hostname === 'www.' + redirectUrl.hostname)
       
@@ -116,14 +125,21 @@ export async function extractArticleContent(url: string): Promise<ExtractionResu
       
       // Follow the redirect (maximum 1 redirect)
       res = await fetch(redirectUrl.toString(), { signal: controller.signal, headers: { 'User-Agent': USER_AGENT }, redirect: 'manual' })
+      // Check if 2nd fetch also resulted in a redirect (not allowed)
+      if (res.status >= 300 && res.status < 400) {
+        return toFail('複数回のリダイレクトは許可されていません。')
+      }
     }
     
     if (!res.ok) return toFail(`URL取得に失敗しました (status: ${res.status}).`)
     
     // Check content length if header is present
     const contentLengthHeader = res.headers.get('Content-Length')
-    if (contentLengthHeader && parseInt(contentLengthHeader) > MAX_CONTENT_LENGTH) {
-      return toFail('コンテンツのサイズが大きすぎます。')
+    if (contentLengthHeader) {
+      const parsedContentLength = parseInt(contentLengthHeader, 10)
+      if (!isNaN(parsedContentLength) && parsedContentLength > MAX_CONTENT_LENGTH) {
+        return toFail('コンテンツのサイズが大きすぎます。')
+      }
     }
 
     const html = await res.text()
