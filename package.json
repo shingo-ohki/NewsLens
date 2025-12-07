@@ -25,7 +25,7 @@
   },
   "homepage": "https://github.com/shingo-ohki/NewsLens#readme",
   "engines": {
-    "node": ">=20.19.0"
+    "node": ">=20"
   },
   "dependencies": {
     "@mozilla/readability": "^0.6.0",
