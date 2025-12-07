@@ -22,4 +22,64 @@ describe('/api/analyze route', () => {
     const json = await res.json()
     expect(json.error).toBeDefined()
   })
+
+  it('returns 400 when url is empty string', async () => {
+    process.env.USE_MOCK_LLM = 'true'
+    const body = { url: '' }
+    const req = new Request('http://localhost/api/analyze', { method: 'POST', body: JSON.stringify(body), headers: { 'Content-Type': 'application/json' } })
+    const res = await POST(req)
+    expect(res.status).toBe(400)
+    const json = await res.json()
+    expect(json.error).toContain('non-empty string')
+  })
+
+  it('returns 400 when url is not a string', async () => {
+    process.env.USE_MOCK_LLM = 'true'
+    const body = { url: 123 }
+    const req = new Request('http://localhost/api/analyze', { method: 'POST', body: JSON.stringify(body), headers: { 'Content-Type': 'application/json' } })
+    const res = await POST(req)
+    expect(res.status).toBe(400)
+    const json = await res.json()
+    expect(json.error).toContain('non-empty string')
+  })
+
+  it('returns 400 when url is whitespace only', async () => {
+    process.env.USE_MOCK_LLM = 'true'
+    const body = { url: '   ' }
+    const req = new Request('http://localhost/api/analyze', { method: 'POST', body: JSON.stringify(body), headers: { 'Content-Type': 'application/json' } })
+    const res = await POST(req)
+    expect(res.status).toBe(400)
+    const json = await res.json()
+    expect(json.error).toContain('non-empty string')
+  })
+
+  it('returns 400 when inputText is empty string', async () => {
+    process.env.USE_MOCK_LLM = 'true'
+    const body = { inputText: '' }
+    const req = new Request('http://localhost/api/analyze', { method: 'POST', body: JSON.stringify(body), headers: { 'Content-Type': 'application/json' } })
+    const res = await POST(req)
+    expect(res.status).toBe(400)
+    const json = await res.json()
+    expect(json.error).toContain('non-empty string')
+  })
+
+  it('returns 400 when inputText is not a string', async () => {
+    process.env.USE_MOCK_LLM = 'true'
+    const body = { inputText: ['array'] }
+    const req = new Request('http://localhost/api/analyze', { method: 'POST', body: JSON.stringify(body), headers: { 'Content-Type': 'application/json' } })
+    const res = await POST(req)
+    expect(res.status).toBe(400)
+    const json = await res.json()
+    expect(json.error).toContain('non-empty string')
+  })
+
+  it('returns 400 when inputText is whitespace only', async () => {
+    process.env.USE_MOCK_LLM = 'true'
+    const body = { inputText: '\t\n  ' }
+    const req = new Request('http://localhost/api/analyze', { method: 'POST', body: JSON.stringify(body), headers: { 'Content-Type': 'application/json' } })
+    const res = await POST(req)
+    expect(res.status).toBe(400)
+    const json = await res.json()
+    expect(json.error).toContain('non-empty string')
+  })
 })

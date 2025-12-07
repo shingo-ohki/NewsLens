@@ -60,8 +60,20 @@ export default function HomePage() {
     <main style={{ padding: 20 }}>
       <h1>NewsLens — Analyze</h1>
       <div style={{ marginBottom: 12, display: 'flex', gap: 8 }}>
-        <button onClick={() => setInputMode('url')} disabled={inputMode === 'url'}>URLから抽出</button>
-        <button onClick={() => setInputMode('text')} disabled={inputMode === 'text'}>テキスト直接入力</button>
+        <button 
+          onClick={() => setInputMode('url')} 
+          disabled={inputMode === 'url'}
+          aria-pressed={inputMode === 'url'}
+        >
+          URLから抽出
+        </button>
+        <button 
+          onClick={() => setInputMode('text')} 
+          disabled={inputMode === 'text'}
+          aria-pressed={inputMode === 'text'}
+        >
+          テキスト直接入力
+        </button>
       </div>
 
       {inputMode === 'url' ? (
@@ -96,7 +108,7 @@ export default function HomePage() {
         </section>
       )}
 
-      {warnings.length > 0 && (
+      {validated && warnings.length > 0 && (
         <section style={{ marginTop: 16, background: '#fff9e6', padding: 12, border: '1px solid #f0e0b2' }}>
           <h3>Warnings</h3>
           <ul>
