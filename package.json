@@ -24,6 +24,9 @@
     "url": "https://github.com/shingo-ohki/NewsLens/issues"
   },
   "homepage": "https://github.com/shingo-ohki/NewsLens#readme",
+  "engines": {
+    "node": ">=20"
+  },
   "dependencies": {
     "@mozilla/readability": "^0.6.0",
     "@supabase/supabase-js": "^2.86.0",
