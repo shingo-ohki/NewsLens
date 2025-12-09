@@ -1,5 +1,6 @@
 import fs from 'fs'
 import path from 'path'
+import crypto from 'crypto'
 
 export interface LLMFixture {
   timestamp: string
@@ -22,7 +23,7 @@ export function saveLLMFixture(
 
   const fixture: LLMFixture = {
     timestamp: new Date().toISOString(),
-    inputHash: require('crypto')
+    inputHash: crypto
       .createHash('md5')
       .update(inputText)
       .digest('hex')

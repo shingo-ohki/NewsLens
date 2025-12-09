@@ -42,7 +42,7 @@ export function extractJSONFromRaw(raw: string): unknown {
   const direct = tryParse(s)
   if (direct !== null) {
     // Ensure it's an object, not array
-    if (typeof direct === 'object' && !Array.isArray(direct) && direct !== null) {
+    if (typeof direct === 'object' && !Array.isArray(direct)) {
       return direct
     }
   }
@@ -62,6 +62,10 @@ export function extractJSONFromRaw(raw: string): unknown {
         const parsed = tryParse(candidate)
         if (parsed !== null && typeof parsed === 'object' && !Array.isArray(parsed)) {
           return parsed
+        } else {
+          // パース失敗時はインデックスと深度をリセットして次のブロック探索へ
+          startIdx = -1
+          depth = 0
         }
       }
     }
