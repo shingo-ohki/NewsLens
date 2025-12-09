@@ -22,6 +22,20 @@ const SAMPLE_RESULT = {
 
 test.describe('Analyze flow', () => {
   test('analyze -> save -> render result page', async ({ page }) => {
+    // Intercept POST /api/analyze to return validated result
+    await page.route('**/api/analyze', (route) => {
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          validated: true,
+          result: SAMPLE_RESULT,
+          rawOutput: '{"summary": {"100": "テスト", "300": "テスト中", "600": "テスト詳細"}}',
+          warnings: [],
+        }),
+      })
+    })
+
     // Intercept POST /api/result to return a deterministic id
     await page.route('**/api/result', (route) => {
       route.fulfill({

@@ -1,6 +1,14 @@
 import type { NewsLensResult } from '../types/NewsLensResult'
+import { loadLLMFixture } from './testFixtures/saveFixture'
 
 export function mockLLMAnalyzeResponse(valid = true): string {
+  // 保存済みのテストフィクスチャを優先的に使用
+  const fixture = loadLLMFixture('testFixture')
+  if (fixture) {
+    console.log(`📦 Using test fixture (${fixture.model})`)
+    return fixture.rawOutput
+  }
+
   if (valid) {
     const sample: NewsLensResult = {
       summary: {
