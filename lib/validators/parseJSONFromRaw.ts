@@ -59,7 +59,6 @@ export function extractJSONFromRaw(raw: string): unknown {
       depth--
       if (startIdx !== -1 && depth === 0) {
         let candidate = s.slice(startIdx, i + 1)
-        candidate = fixTrailingCommas(candidate)
         const parsed = tryParse(candidate)
         if (parsed !== null && typeof parsed === 'object' && !Array.isArray(parsed)) {
           return parsed
