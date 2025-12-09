@@ -128,11 +128,16 @@ export default function HomePage() {
       )}
 
       {!validated && errors.length > 0 && (
-        <section style={{ marginTop: 20 }}>
-          <h2>Errors</h2>
+        <section style={{ marginTop: 20, background: '#ffe6e6', padding: 12, border: '1px solid #e0b2b2' }}>
+          <h2>⚠️ バリデーションエラー</h2>
           <ul>
-            {errors.map((e: any, i: number) => <li key={i}>{JSON.stringify(e)}</li>)}
+            {errors.map((e: any, i: number) => (
+              <li key={i}>
+                {typeof e === 'string' ? e : e.message || JSON.stringify(e)}
+              </li>
+            ))}
           </ul>
+          <p style={{ marginTop: 8, fontSize: 12, color: '#666' }}>詳細はサーバーログをご確認ください。</p>
         </section>
       )}
     </main>

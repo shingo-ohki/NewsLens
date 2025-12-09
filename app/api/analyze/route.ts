@@ -37,35 +37,78 @@ export async function POST(req: Request) {
 
     const llmResp = await analyzeWithLLM(textForAnalysis, { mock: process.env.USE_MOCK_LLM === 'true' })
     const rawOutput = llmResp.raw
+    
+    const isDebug = process.env.DEBUG_LLM === 'true'
+    if (isDebug) {
+      console.log('[DEBUG] LLM raw output length:', rawOutput.length)
+      if (llmResp.fixtureId) {
+        console.log('[DEBUG] Fixture saved:', llmResp.fixtureId)
+      }
+    }
 
     // Extract JSON
     let parsed: unknown
     try {
       parsed = extractJSONFromRaw(rawOutput)
+      const parsedObj = parsed as any
+      
+      // 抽出されたオブジェクトが配列でないことを確認
+      if (Array.isArray(parsedObj)) {
+        throw new Error('Extracted JSON must be an object, not an array')
+      }
+      
+      // 必要なキーが存在することを確認
+      const requiredKeys = ['summary', 'key_points', 'actors', 'issues', 'stances', 'causal_map', 'underlying_values', 'uncertainties']
+      const missingKeys = requiredKeys.filter(k => !(k in parsedObj))
+      if (missingKeys.length > 0) {
+        throw new Error(`Missing required keys: ${missingKeys.join(', ')}`)
+      }
+      
+      if (isDebug) {
+        console.log('[DEBUG] Parsed JSON keys:', Object.keys(parsedObj).join(', '))
+      }
     } catch (e: any) {
-      return NextResponse.json({ validated: false, errors: ['Could not extract JSON from LLM output'], rawOutput, warnings }, { status: 400 })
+      if (isDebug) {
+        console.error('[DEBUG] JSON extraction error:', e.message)
+      }
+      return NextResponse.json({ validated: false, errors: ['JSONを抽出できませんでした: ' + e.message], rawOutput, warnings }, { status: 400 })
     }
 
     // Validate using zod
     const safe = safeParseNewsLensResult(parsed)
     if (safe.success) {
+      if (isDebug) {
+        console.log('[DEBUG] Validation succeeded')
+      }
       return NextResponse.json({ validated: true, result: safe.data, rawOutput, model: 'gpt-4o-mini', warnings })
     }
 
     // Correction flow: attempt one retry with corrective instruction
     const errors = flattenZodErrors(safe.error)
+    if (isDebug) {
+      console.log('[DEBUG] Initial validation errors:', JSON.stringify(errors, null, 2))
+    }
     try {
       const correctionPrompt = buildCorrectionPrompt(rawOutput, textForAnalysis)
       const retry = await analyzeWithLLM(textForAnalysis, { mock: process.env.USE_MOCK_LLM === 'true', promptOverride: correctionPrompt })
       const retryParsed = extractJSONFromRaw(retry.raw)
       const retrySafe = safeParseNewsLensResult(retryParsed)
       if (retrySafe.success) {
+        if (isDebug) {
+          console.log('[DEBUG] Retry validation succeeded')
+        }
         return NextResponse.json({ validated: true, result: retrySafe.data, rawOutput: retry.raw, model: 'gpt-4o-mini', warnings })
       }
       const retryErrors = flattenZodErrors(retrySafe.error)
+      if (isDebug) {
+        console.log('[DEBUG] Retry validation errors:', JSON.stringify(retryErrors, null, 2))
+      }
       return NextResponse.json({ validated: false, errors: [...errors, ...retryErrors], rawOutput: retry.raw, warnings }, { status: 400 })
     } catch (e: any) {
       // If correction throws or fails, return original errors
+      if (isDebug) {
+        console.log('[DEBUG] Correction flow error:', e.message)
+      }
       return NextResponse.json({ validated: false, errors, rawOutput, warnings }, { status: 400 })
     }
   } catch (err: any) {

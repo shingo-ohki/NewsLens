@@ -17,7 +17,18 @@ function tryParse(s: string) {
   }
 }
 
-// Simple bracket-aware extraction: find first {...} or [...] block that parses
+/**
+ * 末尾のカンマを削除（JSON修正）
+ */
+function fixTrailingCommas(s: string): string {
+  // 配列の最後のアイテム後のカンマを削除
+  s = s.replace(/,\s*\]/g, ']')
+  // オブジェクトの最後のプロパティ後のカンマを削除
+  s = s.replace(/,\s*\}/g, '}')
+  return s
+}
+
+// Simple bracket-aware extraction: find first {...} block that parses
 export function extractJSONFromRaw(raw: string): unknown {
   if (!raw || typeof raw !== 'string') {
     throw new JSONExtractionError('No raw string to parse')
@@ -25,42 +36,39 @@ export function extractJSONFromRaw(raw: string): unknown {
 
   let s = raw.trim()
   s = removeCodeFences(s)
+  s = fixTrailingCommas(s)  // 末尾のカンマを修正
 
-  // Try direct parse
+  // Try direct parse first
   const direct = tryParse(s)
-  if (direct !== null) return direct
+  if (direct !== null) {
+    // Ensure it's an object, not array
+    if (typeof direct === 'object' && !Array.isArray(direct) && direct !== null) {
+      return direct
+    }
+  }
 
-  // Try to find first JSON block
-  // We will attempt to find balanced braces/brackets
-  const startChars = ['{', '[']
-  for (const startChar of startChars) {
-    const start = s.indexOf(startChar)
-    if (start === -1) continue
-    let depth = 0
-    for (let i = start; i < s.length; i++) {
-      const c = s[i]
-      if (c === startChar) depth++
-      else if ((startChar === '{' && c === '}') || (startChar === '[' && c === ']')) depth--
-      if (depth === 0) {
-        const candidate = s.slice(start, i + 1)
+  // Try to find first {...} block (prioritize objects over arrays)
+  let depth = 0
+  let startIdx = -1
+  for (let i = 0; i < s.length; i++) {
+    const c = s[i]
+    if (c === '{') {
+      if (startIdx === -1) startIdx = i
+      depth++
+    } else if (c === '}') {
+      depth--
+      if (startIdx !== -1 && depth === 0) {
+        let candidate = s.slice(startIdx, i + 1)
+        candidate = fixTrailingCommas(candidate)
         const parsed = tryParse(candidate)
-        if (parsed !== null) return parsed
-        break
+        if (parsed !== null && typeof parsed === 'object' && !Array.isArray(parsed)) {
+          return parsed
+        }
       }
     }
   }
 
-  // Fallback: use regex to match the first large { ... } block (naive)
-  const regex = /\{(?:[^{}]|\{[^}]*\})+\}/g
-  const matches = s.match(regex)
-  if (matches && matches.length > 0) {
-    for (const m of matches) {
-      const parsed = tryParse(m)
-      if (parsed !== null) return parsed
-    }
-  }
-
-  throw new JSONExtractionError('Could not extract JSON from raw LLM output')
+  throw new JSONExtractionError('Could not extract valid JSON object from raw LLM output')
 }
 
 export default extractJSONFromRaw

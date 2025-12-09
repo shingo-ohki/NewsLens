@@ -15,5 +15,8 @@ export type NewsLensResultFromZod = z.infer<typeof newsLensSchema>
 
 export function safeParseNewsLensResult(input: unknown) { return newsLensSchema.safeParse(input) }
 export function parseNewsLensResult(input: unknown): NewsLensResult { return newsLensSchema.parse(input) as NewsLensResult }
-export function flattenZodErrors(err: z.ZodError) { return err.errors.map(e => ({ path: e.path, message: e.message })) }
+export function flattenZodErrors(err: z.ZodError | undefined) {
+	if (!err || !Array.isArray((err as any).errors)) return [];
+	return err.errors.map((e: any) => ({ path: e.path, message: e.message }));
+}
 export default newsLensSchema
