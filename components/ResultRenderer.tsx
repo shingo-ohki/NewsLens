@@ -13,6 +13,11 @@ const getStanceBadgeColor = (stanceType: string) => {
       return 'bg-red-100 text-red-800'
     case 'mixed':
       return 'bg-yellow-100 text-yellow-800'
+    case 'neutral':
+      return 'bg-blue-100 text-blue-800'
+    case 'unclear':
+      return 'bg-purple-100 text-purple-800'
+    case 'other':
     default:
       return 'bg-gray-100 text-gray-800'
   }
@@ -55,7 +60,7 @@ export const ResultRenderer: React.FC<Props> = ({ result }) => {
               <div key={idx} className="border-l-4 border-blue-400 pl-4 bg-blue-50 rounded py-2">
                 <div className="flex items-center gap-2 mb-1">
                   <strong className="text-gray-800 text-sm">{s.actor}</strong>
-                  <span className={`rounded-full px-2 py-1 text-xs font-medium ${getStanceBadgeColor(s.stance_type)}`} aria-label={`stance type: ${s.stance_type}`}>
+                  <span className={`rounded-full px-2 py-1 text-xs font-medium ${getStanceBadgeColor(s.stance_type)}`} aria-label={`スタンスタイプ: ${s.stance_type}`}>
                     {s.stance_type}
                   </span>
                 </div>

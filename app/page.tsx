@@ -121,14 +121,6 @@ export default function HomePage() {
           </button>
         </div>
 
-        {/* Raw LLM Output */}
-        {rawOutput && (
-          <section className="mb-8 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">Raw LLM Output</h2>
-            <pre className="whitespace-pre-wrap bg-gray-50 p-4 rounded text-sm text-gray-700 overflow-x-auto">{rawOutput}</pre>
-          </section>
-        )}
-
         {/* Warnings */}
         {validated && warnings.length > 0 && (
           <section className="bg-yellow-50 border-l-4 border-yellow-400 p-4 my-4">
@@ -152,6 +144,16 @@ export default function HomePage() {
               </button>
             </div>
             <ResultRenderer result={result} />
+            
+            {/* Raw LLM Output - 折りたたみ可能、下部に配置 */}
+            {rawOutput && (
+              <details className="mt-8 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <summary className="cursor-pointer text-gray-600 hover:text-gray-800 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 rounded mb-2">
+                  技術的詳細を表示（Raw LLM Output）
+                </summary>
+                <pre className="whitespace-pre-wrap bg-gray-50 p-4 rounded text-sm text-gray-700 overflow-x-auto mt-4">{rawOutput}</pre>
+              </details>
+            )}
           </section>
         )}
 

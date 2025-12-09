@@ -21,9 +21,7 @@ export default async function ResultPage({ params }: Props) {
   const result = data.result
   
   // Generate share URL
-  const shareUrl = typeof window !== 'undefined' 
-    ? window.location.href 
-    : `${process.env.NEXT_PUBLIC_BASE_URL ?? ''}/r/${id}`
+  const shareUrl = `${process.env.NEXT_PUBLIC_BASE_URL ?? ''}/r/${id}`
   
   return (
     <main className="min-h-screen bg-gray-50 py-8">
