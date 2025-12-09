@@ -61,7 +61,7 @@ export async function POST(req: Request) {
       const requiredKeys = ['summary', 'key_points', 'actors', 'issues', 'stances', 'causal_map', 'underlying_values', 'uncertainties']
       const missingKeys = requiredKeys.filter(k => !(k in parsedObj))
       if (missingKeys.length > 0) {
-        throw new Error(`Missing required keys: ${missingKeys.join(', ')}`)
+        throw new Error(`必須キーが不足しています: ${missingKeys.join(', ')}`)
       }
       
       if (isDebug) {
