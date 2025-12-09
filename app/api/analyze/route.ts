@@ -54,7 +54,7 @@ export async function POST(req: Request) {
       
       // 抽出されたオブジェクトが配列でないことを確認
       if (Array.isArray(parsedObj)) {
-        throw new Error('Extracted JSON must be an object, not an array')
+        throw new Error('抽出されたJSONはオブジェクトである必要があります（配列は不可）')
       }
       
       // 必要なキーが存在することを確認
