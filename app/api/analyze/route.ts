@@ -80,7 +80,8 @@ export async function POST(req: Request) {
       if (isDebug) {
         console.log('[DEBUG] Validation succeeded')
       }
-      return NextResponse.json({ validated: true, result: safe.data, rawOutput, model: 'gpt-4o-mini', warnings })
+      const isUsingMockLLM = process.env.USE_MOCK_LLM === 'true'
+      return NextResponse.json({ validated: true, result: safe.data, rawOutput, model: 'gpt-4o-mini', isUsingMockLLM, warnings })
     }
 
     // Correction flow: attempt one retry with corrective instruction
@@ -97,7 +98,8 @@ export async function POST(req: Request) {
         if (isDebug) {
           console.log('[DEBUG] Retry validation succeeded')
         }
-        return NextResponse.json({ validated: true, result: retrySafe.data, rawOutput: retry.raw, model: 'gpt-4o-mini', warnings })
+        const isUsingMockLLM = process.env.USE_MOCK_LLM === 'true'
+        return NextResponse.json({ validated: true, result: retrySafe.data, rawOutput: retry.raw, model: 'gpt-4o-mini', isUsingMockLLM, warnings })
       }
       const retryErrors = flattenZodErrors(retrySafe.error)
       if (isDebug) {
