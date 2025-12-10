@@ -6,6 +6,8 @@ import type { NewsLensResult } from '../lib/types/NewsLensResult'
 
 export default function HomePage() {
   const router = useRouter()
+  // USE_MOCK_LLM=true のときのみExperimental表記を表示
+  const showExperimentalBadge = process.env.NEXT_PUBLIC_USE_MOCK_LLM === 'true'
   const [inputText, setInputText] = useState('')
   const [urlInput, setUrlInput] = useState('')
   const [inputMode, setInputMode] = useState<'url' | 'text'>('url')
@@ -59,14 +61,28 @@ export default function HomePage() {
       <div className="flex flex-col items-center pt-[25vh]">
         <div className="w-full max-w-2xl px-4">
           {/* Logo */}
-          <div className="flex justify-center items-center mb-6 h-[54px]">
-            <Logo variant="horizontal" size="lg" className="scale-150" />
+          <div className="flex justify-center items-center mb-8 h-[54px]">
+            <div className="flex items-center">
+              <Logo variant="horizontal" size="lg" className="scale-150" />
+              {showExperimentalBadge && (
+                <span className="ml-8 text-xs text-gray-400" style={{ fontSize: '0.75rem', letterSpacing: '0.02em', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                  Experimental
+                </span>
+              )}
+            </div>
           </div>
 
           {/* Subtitle */}
-          <div className="text-center text-gray-500 text-sm mb-12 h-6 flex items-center justify-center">
+          <div className="text-center text-gray-400 text-sm mb-12 h-6 flex items-center justify-center">
             ニュースを構造化して理解する
           </div>
+          {/* Notice Block: ツールの思想的立ち位置 & デモ段階の明示 */}
+           <section className="w-full flex flex-col items-center mb-2">
+            <p className="text-center text-gray-400 text-xs leading-relaxed" style={{ fontSize: '0.95rem' }}>
+              このツールは、意見を誘導したり結論を出すためのものではありません。<br />
+              <span className="text-gray-300">※現在はデモ段階のため、入力内容にかかわらず固定の結果を表示しています。</span>
+            </p>
+          </section>
 
           {/* Input Tabs */}
           <div className="flex justify-center border-b border-gray-200 mb-6 h-12">

@@ -24,8 +24,28 @@ const getStanceBadgeColor = (stanceType: string) => {
 }
 
 export const ResultRenderer: React.FC<Props> = ({ result }) => {
+  // USE_MOCK_LLM=true のときのみサンプル出力表示を表示
+  const showSampleNotice = process.env.NEXT_PUBLIC_USE_MOCK_LLM === 'true'
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* サンプル出力補足表示（控えめ） */}
+      {showSampleNotice && (
+        <div className="w-full mb-2">
+          <span className="block text-xs text-gray-400 text-left" style={{ fontSize: '0.85rem' }}>
+            ※これはサンプル出力です（
+            <a
+              href="https://news.yahoo.co.jp/expert/articles/3954c96c895c3100019d80ce21935c9219c2b38c"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-400 hover:text-blue-500 underline"
+            >
+              兵庫県情報漏洩問題に関する記事
+            </a>
+            の解析例）
+          </span>
+        </div>
+      )}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Summary */}
         <section className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
