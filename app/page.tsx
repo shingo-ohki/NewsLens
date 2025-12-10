@@ -1,178 +1,145 @@
 "use client"
 import React, { useState } from 'react'
-import ResultRenderer from '../components/ResultRenderer'
+import { useRouter } from 'next/navigation'
 import { Logo } from '../components/Logo'
 import type { NewsLensResult } from '../lib/types/NewsLensResult'
 
 export default function HomePage() {
+  const router = useRouter()
   const [inputText, setInputText] = useState('')
   const [urlInput, setUrlInput] = useState('')
   const [inputMode, setInputMode] = useState<'url' | 'text'>('url')
-  const [rawOutput, setRawOutput] = useState<string | null>(null)
-  const [validated, setValidated] = useState(false)
-  const [result, setResult] = useState<NewsLensResult | null>(null)
-  const [errors, setErrors] = useState<any[]>([])
-  const [warnings, setWarnings] = useState<string[]>([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   async function handleAnalyze() {
-    setRawOutput(null)
-    setValidated(false)
-    setResult(null)
-    setErrors([])
-    setWarnings([])
+    setError(null)
+    setIsLoading(true)
 
-    const payload = inputMode === 'url' ? { url: urlInput } : { inputText }
-    const res = await fetch('/api/analyze', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    })
-    const data = await res.json()
-    setWarnings(data.warnings ?? [])
-    if (res.ok && data.validated) {
-      setRawOutput(data.rawOutput ?? null)
-      setValidated(true)
-      setResult(data.result)
-    } else {
-      setRawOutput(data.rawOutput ?? null)
-      setValidated(false)
-      setErrors(data.errors ?? (data.error ? [data.error] : []))
-    }
-  }
+    try {
+      const payload = inputMode === 'url' ? { url: urlInput } : { inputText }
+      const res = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+      const data = await res.json()
 
-  async function handleSave() {
-    if (!result) return
-    const res = await fetch('/api/result', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ result }),
-    })
-    const data = await res.json()
-    if (res.ok && data.result_id) {
-      alert(`Saved as result: ${data.result_id}`)
-      // Optionally redirect to /r/:id
-      window.location.href = `/r/${data.result_id}`
-    } else {
-      alert('Error saving result: ' + (data.error ?? 'unknown'))
+      if (!res.ok || !data.validated) {
+        setError(data.error ?? 'Analysis failed')
+        setIsLoading(false)
+        return
+      }
+
+      const result: NewsLensResult = data.result
+      
+      // Save result and redirect
+      const saveRes = await fetch('/api/result', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ result }),
+      })
+      const saveData = await saveRes.json()
+
+      if (saveRes.ok && saveData.result_id) {
+        router.push(`/r/${saveData.result_id}`)
+      } else {
+        setError('Failed to save result')
+        setIsLoading(false)
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred')
+      setIsLoading(false)
     }
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header with logo */}
-        <div className="flex items-center gap-4 mb-8">
-          <div className="flex items-center gap-3">
-            <Logo variant="horizontal" size="lg" />
-            <span className="text-sm text-gray-500 font-normal">ニュースを構造化して理解する</span>
+    <main className="min-h-screen bg-white flex flex-col">
+      {/* Fixed Header - positioned at 25% from top */}
+      <div className="flex flex-col items-center pt-[25vh]">
+        <div className="w-full max-w-2xl px-4">
+          {/* Logo */}
+          <div className="flex justify-center items-center mb-6 h-[54px]">
+            <Logo variant="horizontal" size="lg" className="scale-150" />
+          </div>
+
+          {/* Subtitle */}
+          <div className="text-center text-gray-500 text-sm mb-12 h-6 flex items-center justify-center">
+            ニュースを構造化して理解する
+          </div>
+
+          {/* Input Tabs */}
+          <div className="flex justify-center border-b border-gray-200 mb-6 h-12">
+            <button 
+              onClick={() => { setInputMode('url'); setError(null); }} 
+              className={`px-6 py-2 font-medium text-sm border-b-2 transition flex items-center ${
+                inputMode === 'url' 
+                  ? 'border-blue-600 text-blue-600' 
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
+              }`}
+              aria-pressed={inputMode === 'url'}
+            >
+              URLから抽出
+            </button>
+            <button 
+              onClick={() => { setInputMode('text'); setError(null); }} 
+              className={`px-6 py-2 font-medium text-sm border-b-2 transition flex items-center ${
+                inputMode === 'text' 
+                  ? 'border-blue-600 text-blue-600' 
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
+              }`}
+              aria-pressed={inputMode === 'text'}
+            >
+              テキスト直接入力
+            </button>
           </div>
         </div>
-        
-        {/* Tab UI for input mode */}
-        <div className="flex border-b border-gray-200 mb-6">
-          <button 
-            onClick={() => setInputMode('url')} 
-            className={`px-4 py-2 font-medium text-sm border-b-2 transition ${
-              inputMode === 'url' 
-                ? 'border-blue-600 text-blue-600' 
-                : 'border-transparent text-gray-500 hover:text-gray-700'
-            }`}
-            aria-pressed={inputMode === 'url'}
-          >
-            URLから抽出
-          </button>
-          <button 
-            onClick={() => setInputMode('text')} 
-            className={`px-4 py-2 font-medium text-sm border-b-2 transition ${
-              inputMode === 'text' 
-                ? 'border-blue-600 text-blue-600' 
-                : 'border-transparent text-gray-500 hover:text-gray-700'
-            }`}
-            aria-pressed={inputMode === 'text'}
-          >
-            テキスト直接入力
-          </button>
-        </div>
+      </div>
 
-        {/* Input fields */}
-        {inputMode === 'url' ? (
-          <div className="mb-4">
-            <input
-              type="url"
-              placeholder="https://example.com/article"
-              value={urlInput}
-              onChange={(e) => setUrlInput(e.target.value)}
-              className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-        ) : (
-          <div className="mb-4">
-            <textarea
-              rows={10}
-              placeholder="Paste article text here..."
-              value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
-              className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-        )}
-
-        {/* Analyze button */}
-        <div className="mb-8">
-          <button 
-            onClick={handleAnalyze} 
-            disabled={inputMode === 'url' ? !urlInput.trim() : !inputText.trim()}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-3 rounded-md transition disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            分析する
-          </button>
-        </div>
-
-        {/* Warnings */}
-        {validated && warnings.length > 0 && (
-          <section className="bg-yellow-50 border-l-4 border-yellow-400 p-4 my-4">
-            <h3 className="text-lg font-semibold text-yellow-800 mb-2">警告</h3>
-            <ul className="list-disc pl-5 space-y-1 text-yellow-700">
-              {warnings.map((w, i) => <li key={i}>{w}</li>)}
-            </ul>
-          </section>
-        )}
-
-        {/* Validated Result */}
-        {validated && result && (
-          <section className="mt-8">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">解析結果</h2>
-              <button 
-                onClick={handleSave}
-                className="bg-green-600 hover:bg-green-700 text-white font-medium px-4 py-2 rounded-md transition"
-              >
-                結果を保存
-              </button>
-            </div>
-            <ResultRenderer result={result} />
-            
-            {/* Raw LLM Output - 折りたたみ可能、下部に配置 */}
-            {rawOutput && (
-              <details className="mt-8 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <summary className="cursor-pointer text-gray-600 hover:text-gray-800 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 rounded mb-2">
-                  技術的詳細を表示（Raw LLM Output）
-                </summary>
-                <pre className="whitespace-pre-wrap bg-gray-50 p-4 rounded text-sm text-gray-700 overflow-x-auto mt-4">{rawOutput}</pre>
-              </details>
+      {/* Content - expands based on input */}
+      <div className="flex justify-center pb-8">
+        <div className="w-full max-w-2xl px-4">
+          {/* Input Field */}
+          <div className="mb-6">
+            {inputMode === 'url' ? (
+              <input
+                type="url"
+                placeholder="https://example.com/article"
+                value={urlInput}
+                onChange={(e) => setUrlInput(e.target.value)}
+                disabled={isLoading}
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:cursor-not-allowed"
+              />
+            ) : (
+              <textarea
+                rows={6}
+                placeholder="記事のテキストをここに貼り付けてください"
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
+                disabled={isLoading}
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:cursor-not-allowed"
+              />
             )}
-          </section>
-        )}
+          </div>
 
-        {/* Errors */}
-        {!validated && errors.length > 0 && (
-          <section className="bg-red-50 border-l-4 border-red-400 p-4 my-4">
-            <h2 className="text-lg font-semibold text-red-800 mb-2">エラー</h2>
-            <ul className="list-disc pl-5 space-y-1 text-red-700">
-              {errors.map((e: any, i: number) => <li key={i}>{JSON.stringify(e)}</li>)}
-            </ul>
-          </section>
-        )}
+          {/* Analyze Button */}
+          <div className="flex justify-center mb-4">
+            <button 
+              onClick={handleAnalyze} 
+              disabled={isLoading || (inputMode === 'url' ? !urlInput.trim() : !inputText.trim())}
+              className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-12 py-3 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isLoading ? '分析中...' : '分析する'}
+            </button>
+          </div>
+
+          {/* Error Message */}
+          {error && (
+            <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-red-700 text-sm">{error}</p>
+            </div>
+          )}
+        </div>
       </div>
     </main>
   )
