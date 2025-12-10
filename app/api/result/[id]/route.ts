@@ -1,13 +1,10 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
-export async function GET(req: Request, { params }: { params?: { id?: string } } = {}) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    // Guard: if params is missing for any reason, fall back to parsing URL path
-    const url = new URL(req.url)
-    const segments = url.pathname.split('/').filter(Boolean)
-    const idFromPath = segments[segments.length - 1]
-    const id = params?.id ?? idFromPath
+    // Await params for Next.js 16 compatibility
+    const { id } = await params
     if (!id) return NextResponse.json({ error: 'id is required' }, { status: 400 })
 
     const supabaseUrl = process.env.SUPABASE_URL
