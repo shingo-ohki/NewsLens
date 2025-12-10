@@ -37,7 +37,6 @@ export function Logo({
       src={src}
       alt="NewsLens"
       height={height}
-      width={height * (variant === 'icon' ? 1 : 4)}
       className={className}
       style={{ opacity }}
       priority
