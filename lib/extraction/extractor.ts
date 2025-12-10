@@ -170,14 +170,18 @@ export async function extractArticleContent(url: string): Promise<ExtractionResu
     const html = await res.text()
     if (!html || html.trim().length === 0) return toFail('HTMLを取得できませんでした。')
 
-    let JSdom: any
+    let JSDOM: any
     try {
-      JSdom = await getJSDOM()
+      JSDOM = await getJSDOM()
     } catch (err: any) {
+      const isDebug = process.env.DEBUG_LLM === 'true'
+      if (isDebug) {
+        console.error('[DEBUG] getJSDOM failed in extractArticleContent:', err.message || err)
+      }
       return toFail('HTMLパーサーの初期化に失敗しました。テキストを直接入力してください。')
     }
     
-    const dom = new JSdom(html, { url })
+    const dom = new JSDOM(html, { url })
     const reader = new Readability(dom.window.document)
     const parsed = reader.parse()
     if (!parsed || !parsed.textContent?.trim()) return toFail('本文抽出に失敗しました。記事テキストを直接貼り付けてください。')
