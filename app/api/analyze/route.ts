@@ -25,7 +25,10 @@ export async function POST(req: Request) {
     if (url) {
       const extraction = await extractArticleContent(url)
       if (extraction.status === 'fail') {
-        return NextResponse.json({ error: 'Extraction failed. Please paste article text manually.', warnings: extraction.warnings }, { status: 400 })
+        const detailedError = extraction.warnings && extraction.warnings.length > 0 
+          ? extraction.warnings.join(' ') 
+          : 'Extraction failed. Please paste article text manually.'
+        return NextResponse.json({ error: detailedError, warnings: extraction.warnings }, { status: 400 })
       }
       textForAnalysis = extraction.content
       warnings = extraction.warnings ?? []

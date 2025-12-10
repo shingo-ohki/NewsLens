@@ -179,6 +179,10 @@ export async function extractArticleContent(url: string): Promise<ExtractionResu
       },
     }
   } catch (err: any) {
+    const isDebug = process.env.DEBUG_LLM === 'true'
+    if (isDebug) {
+      console.error('[DEBUG] Extraction error:', err)
+    }
     if (err?.name === 'AbortError') return toFail('10秒以内にコンテンツを取得できませんでした。')
     return toFail('本文取得中にエラーが発生しました。')
   } finally {
