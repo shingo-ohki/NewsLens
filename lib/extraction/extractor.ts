@@ -7,8 +7,16 @@ let JSDOMClass: typeof JSdomType | null = null
 
 async function getJSDOM(): Promise<typeof JSdomType> {
   if (!JSDOMClass) {
-    const jsdom = await import('jsdom')
-    JSDOMClass = jsdom.JSDOM
+    try {
+      const jsdom = await import('jsdom')
+      JSDOMClass = jsdom.JSDOM
+    } catch (err: any) {
+      const isDebug = process.env.DEBUG_LLM === 'true'
+      if (isDebug) {
+        console.error('[DEBUG] Failed to import jsdom:', err)
+      }
+      throw new Error('jsdomのインポートに失敗しました。')
+    }
   }
   return JSDOMClass
 }
@@ -156,7 +164,13 @@ export async function extractArticleContent(url: string): Promise<ExtractionResu
     const html = await res.text()
     if (!html || html.trim().length === 0) return toFail('HTMLを取得できませんでした。')
 
-    const JSdom = await getJSDOM()
+    let JSdom: typeof JSdomType
+    try {
+      JSdom = await getJSDOM()
+    } catch (err: any) {
+      return toFail('HTMLパーサーの初期化に失敗しました。テキストを直接入力してください。')
+    }
+    
     const dom = new JSdom(html, { url })
     const reader = new Readability(dom.window.document)
     const parsed = reader.parse()
