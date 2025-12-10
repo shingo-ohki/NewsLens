@@ -77,7 +77,7 @@ export default async function ResultPage({ params }: Props) {
         <footer className="mt-16 pt-8 border-t border-gray-200">
           <div className="flex flex-col items-center gap-2 text-center">
             <Logo variant="horizontal" size="sm" opacity={0.4} />
-            <p className="text-xs text-gray-400">ニュースを構造化して理解する</p>
+            <p className="text-xs text-gray-400">ニュースを、考えられる形に。</p>
           </div>
         </footer>
       </div>
