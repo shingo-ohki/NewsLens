@@ -1,5 +1,6 @@
 import React from 'react'
 import ResultRenderer from '../../../components/ResultRenderer'
+import { Logo } from '../../../components/Logo'
 
 type Props = { params: { id: string } }
 
@@ -27,7 +28,10 @@ export default async function ResultPage({ params }: Props) {
     <main className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">NewsLens Result — {id}</h1>
+          <div className="flex items-center gap-2 mb-4">
+            <Logo variant="icon" size="sm" opacity={0.6} />
+            <h1 className="text-3xl font-bold text-gray-900">解析結果</h1>
+          </div>
           
           {/* Share buttons */}
           <div className="flex gap-3 mb-6">
@@ -68,6 +72,14 @@ export default async function ResultPage({ params }: Props) {
         </div>
         
         <ResultRenderer result={result} />
+        
+        {/* Footer signature */}
+        <footer className="mt-16 pt-8 border-t border-gray-200">
+          <div className="flex flex-col items-center gap-2 text-center">
+            <Logo variant="horizontal" size="sm" opacity={0.4} />
+            <p className="text-xs text-gray-400">ニュースを構造化して理解する</p>
+          </div>
+        </footer>
       </div>
     </main>
   )

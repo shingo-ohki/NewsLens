@@ -1,6 +1,7 @@
 "use client"
 import React, { useState } from 'react'
 import ResultRenderer from '../components/ResultRenderer'
+import { Logo } from '../components/Logo'
 import type { NewsLensResult } from '../lib/types/NewsLensResult'
 
 export default function HomePage() {
@@ -59,12 +60,10 @@ export default function HomePage() {
   return (
     <main className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header with logo space */}
+        {/* Header with logo */}
         <div className="flex items-center gap-4 mb-8">
           <div className="flex items-center gap-3">
-            {/* ロゴを追加する場合はここのコメントを外す */}
-            {/* <img src="/logo.svg" alt="NewsLens" className="h-8 w-auto" width="32" height="32" /> */}
-            <h1 className="text-3xl font-bold text-gray-900">NewsLens</h1>
+            <Logo variant="horizontal" size="lg" />
             <span className="text-sm text-gray-500 font-normal">ニュースを構造化して理解する</span>
           </div>
         </div>
