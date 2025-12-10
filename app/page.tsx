@@ -41,12 +41,21 @@ export default function HomePage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ result }),
       })
-      const saveData = await saveRes.json()
+
+      let saveData: any = {}
+      try {
+        const contentType = saveRes.headers.get('content-type')
+        if (contentType && contentType.includes('application/json')) {
+          saveData = await saveRes.json()
+        }
+      } catch (parseErr) {
+        console.error('Error parsing save response:', parseErr)
+      }
 
       if (saveRes.ok && saveData.result_id) {
         router.push(`/r/${saveData.result_id}`)
       } else {
-        setError('Failed to save result')
+        setError(saveData.error ?? 'Failed to save result')
         setIsLoading(false)
       }
     } catch (err) {

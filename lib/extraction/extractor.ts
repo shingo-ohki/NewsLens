@@ -1,6 +1,17 @@
 import { Readability } from '@mozilla/readability'
-import { JSDOM } from 'jsdom'
+import type { JSDOM as JSdomType } from 'jsdom'
 import type { ExtractionResult } from './types'
+
+// Dynamically import JSDOM to avoid ESM compatibility issues
+let JSDOMClass: typeof JSdomType | null = null
+
+async function getJSDOM(): Promise<typeof JSdomType> {
+  if (!JSDOMClass) {
+    const jsdom = await import('jsdom')
+    JSDOMClass = jsdom.JSDOM
+  }
+  return JSDOMClass
+}
 
 const TIMEOUT_MS = 10_000
 const USER_AGENT = 'NewsLensBot/1.0 (+https://newslens.example)' // polite UA
@@ -145,7 +156,8 @@ export async function extractArticleContent(url: string): Promise<ExtractionResu
     const html = await res.text()
     if (!html || html.trim().length === 0) return toFail('HTMLを取得できませんでした。')
 
-    const dom = new JSDOM(html, { url })
+    const JSdom = await getJSDOM()
+    const dom = new JSdom(html, { url })
     const reader = new Readability(dom.window.document)
     const parsed = reader.parse()
     if (!parsed || !parsed.textContent?.trim()) return toFail('本文抽出に失敗しました。記事テキストを直接貼り付けてください。')
