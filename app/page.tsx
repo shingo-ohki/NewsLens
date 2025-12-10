@@ -74,7 +74,7 @@ export default function HomePage() {
 
           {/* Subtitle */}
           <div className="text-center text-gray-400 text-sm mb-12 h-6 flex items-center justify-center">
-            ニュースを構造化して理解する
+            ニュースを、考えられる形に。
           </div>
           {/* Notice Block: ツールの思想的立ち位置 & デモ段階の明示 */}
            <section className="w-full flex flex-col items-center mb-2">
