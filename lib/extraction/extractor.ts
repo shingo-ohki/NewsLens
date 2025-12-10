@@ -1,31 +1,7 @@
 import { Readability } from '@mozilla/readability'
+import * as cheerio from 'cheerio'
+import { parseHTML } from 'linkedom'
 import type { ExtractionResult } from './types'
-
-// Dynamically import JSDOM to avoid ESM compatibility issues
-// Using a function to defer the import until runtime
-async function getJSDOM() {
-  try {
-    // Try dynamic import first (works in most environments)
-    const { JSDOM } = await import('jsdom')
-    return JSDOM
-  } catch (err: any) {
-    const isDebug = process.env.DEBUG_LLM === 'true'
-    if (isDebug) {
-      console.error('[DEBUG] Failed to import jsdom:', err.message || err)
-    }
-    // Fallback: Try CommonJS require (for Vercel compatibility)
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const jsdom = require('jsdom')
-      return jsdom.JSDOM
-    } catch (requireErr: any) {
-      if (isDebug) {
-        console.error('[DEBUG] Failed to require jsdom:', requireErr.message || requireErr)
-      }
-      throw new Error('jsdomのインポートに失敗しました。')
-    }
-  }
-}
 
 const TIMEOUT_MS = 10_000
 const USER_AGENT = 'NewsLensBot/1.0 (+https://newslens.example)' // polite UA
@@ -170,19 +146,12 @@ export async function extractArticleContent(url: string): Promise<ExtractionResu
     const html = await res.text()
     if (!html || html.trim().length === 0) return toFail('HTMLを取得できませんでした。')
 
-    let JSDOM: any
-    try {
-      JSDOM = await getJSDOM()
-    } catch (err: any) {
-      const isDebug = process.env.DEBUG_LLM === 'true'
-      if (isDebug) {
-        console.error('[DEBUG] getJSDOM failed in extractArticleContent:', err.message || err)
-      }
-      return toFail('HTMLパーサーの初期化に失敗しました。テキストを直接入力してください。')
-    }
+    // Parse HTML with linkedom (lightweight DOM implementation that works in Vercel)
+    const { window } = parseHTML(html)
+    const { document } = window
     
-    const dom = new JSDOM(html, { url })
-    const reader = new Readability(dom.window.document)
+    // Use Readability to extract article content
+    const reader = new Readability(document)
     const parsed = reader.parse()
     if (!parsed || !parsed.textContent?.trim()) return toFail('本文抽出に失敗しました。記事テキストを直接貼り付けてください。')
 
