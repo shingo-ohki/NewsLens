@@ -29,7 +29,7 @@ export const ResultRenderer: React.FC<Props> = ({ result }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Summary */}
         <section className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-3">Summary</h2>
+          <h2 className="text-lg font-semibold text-gray-800 mb-3">要約</h2>
           <div className="space-y-3 text-gray-700">
             <p className="text-sm leading-relaxed">{result.summary['100']}</p>
             <p className="text-sm leading-relaxed">{result.summary['300']}</p>
@@ -44,7 +44,7 @@ export const ResultRenderer: React.FC<Props> = ({ result }) => {
 
         {/* Issues */}
         <section className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-3">Issues</h2>
+          <h2 className="text-lg font-semibold text-gray-800 mb-3">論点</h2>
           <ul className="list-disc pl-5 space-y-2 text-gray-700 text-sm">
             {result.issues.map((issue, idx) => (
               <li key={idx}>{issue}</li>
@@ -54,7 +54,7 @@ export const ResultRenderer: React.FC<Props> = ({ result }) => {
 
         {/* Stances */}
         <section className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-3">Stances</h2>
+          <h2 className="text-lg font-semibold text-gray-800 mb-3">立場・見解</h2>
           <div className="space-y-4">
             {result.stances.map((s, idx) => (
               <div key={idx} className="border-l-4 border-blue-400 pl-4 bg-blue-50 rounded py-2">
@@ -73,7 +73,7 @@ export const ResultRenderer: React.FC<Props> = ({ result }) => {
 
         {/* Causal Map */}
         <section className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-3">Causal Map</h2>
+          <h2 className="text-lg font-semibold text-gray-800 mb-3">因果関係</h2>
           <div className="space-y-4">
             {result.causal_map.map((c, idx) => (
               <div key={idx} className="text-sm">
@@ -91,7 +91,7 @@ export const ResultRenderer: React.FC<Props> = ({ result }) => {
 
         {/* Key Points - full width */}
         <section className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 md:col-span-2">
-          <h2 className="text-lg font-semibold text-gray-800 mb-3">Key Points</h2>
+          <h2 className="text-lg font-semibold text-gray-800 mb-3">重要ポイント</h2>
           <ul className="list-disc pl-5 space-y-2 text-gray-700 text-sm">
             {result.key_points.map((kp, i) => (
               <li key={i}>{kp}</li>
@@ -101,7 +101,7 @@ export const ResultRenderer: React.FC<Props> = ({ result }) => {
 
         {/* Actors - full width */}
         <section className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 md:col-span-2">
-          <h2 className="text-lg font-semibold text-gray-800 mb-3">Actors</h2>
+          <h2 className="text-lg font-semibold text-gray-800 mb-3">関係者</h2>
           <div className="space-y-3">
             {result.actors.map((a, idx) => (
               <div key={idx} className="border-l-4 border-blue-300 pl-4 bg-blue-50 rounded py-2">
@@ -117,7 +117,7 @@ export const ResultRenderer: React.FC<Props> = ({ result }) => {
 
         {/* Underlying Values - full width */}
         <section className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 md:col-span-2">
-          <h2 className="text-lg font-semibold text-gray-800 mb-3">Underlying Values</h2>
+          <h2 className="text-lg font-semibold text-gray-800 mb-3">背景にある価値観</h2>
           <ul className="list-disc pl-5 space-y-2 text-gray-700 text-sm">
             {result.underlying_values.map((v, idx) => (
               <li key={idx}>{v}</li>
@@ -127,7 +127,7 @@ export const ResultRenderer: React.FC<Props> = ({ result }) => {
 
         {/* Uncertainties - full width */}
         <section className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 md:col-span-2">
-          <h2 className="text-lg font-semibold text-gray-800 mb-3">Uncertainties</h2>
+          <h2 className="text-lg font-semibold text-gray-800 mb-3">不確実性</h2>
           <ul className="list-disc pl-5 space-y-2 text-gray-700 text-sm">
             {result.uncertainties.map((u, idx) => (
               <li key={idx}>{u}</li>

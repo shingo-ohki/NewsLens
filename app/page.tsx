@@ -59,7 +59,15 @@ export default function HomePage() {
   return (
     <main className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">NewsLens — Analyze</h1>
+        {/* Header with logo space */}
+        <div className="flex items-center gap-4 mb-8">
+          <div className="flex items-center gap-3">
+            {/* ロゴを追加する場合はここのコメントを外す */}
+            {/* <img src="/logo.svg" alt="NewsLens" className="h-8 w-auto" width="32" height="32" /> */}
+            <h1 className="text-3xl font-bold text-gray-900">NewsLens</h1>
+            <span className="text-sm text-gray-500 font-normal">ニュースを構造化して理解する</span>
+          </div>
+        </div>
         
         {/* Tab UI for input mode */}
         <div className="flex border-b border-gray-200 mb-6">
@@ -117,14 +125,14 @@ export default function HomePage() {
             disabled={inputMode === 'url' ? !urlInput.trim() : !inputText.trim()}
             className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-3 rounded-md transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Analyze
+            分析する
           </button>
         </div>
 
         {/* Warnings */}
         {validated && warnings.length > 0 && (
           <section className="bg-yellow-50 border-l-4 border-yellow-400 p-4 my-4">
-            <h3 className="text-lg font-semibold text-yellow-800 mb-2">Warnings</h3>
+            <h3 className="text-lg font-semibold text-yellow-800 mb-2">警告</h3>
             <ul className="list-disc pl-5 space-y-1 text-yellow-700">
               {warnings.map((w, i) => <li key={i}>{w}</li>)}
             </ul>
@@ -135,12 +143,12 @@ export default function HomePage() {
         {validated && result && (
           <section className="mt-8">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">Validated Result</h2>
+              <h2 className="text-2xl font-bold text-gray-900">解析結果</h2>
               <button 
                 onClick={handleSave}
                 className="bg-green-600 hover:bg-green-700 text-white font-medium px-4 py-2 rounded-md transition"
               >
-                Save result
+                結果を保存
               </button>
             </div>
             <ResultRenderer result={result} />
@@ -160,7 +168,7 @@ export default function HomePage() {
         {/* Errors */}
         {!validated && errors.length > 0 && (
           <section className="bg-red-50 border-l-4 border-red-400 p-4 my-4">
-            <h2 className="text-lg font-semibold text-red-800 mb-2">Errors</h2>
+            <h2 className="text-lg font-semibold text-red-800 mb-2">エラー</h2>
             <ul className="list-disc pl-5 space-y-1 text-red-700">
               {errors.map((e: any, i: number) => <li key={i}>{JSON.stringify(e)}</li>)}
             </ul>
