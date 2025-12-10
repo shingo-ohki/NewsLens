@@ -7,7 +7,13 @@ type Props = { params: { id: string } }
 export default async function ResultPage({ params }: Props) {
   // Nextjs params may be a Promise; unwrap before use
   const { id } = await params as { id: string }
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL ?? ''}/api/result/${id}`, { cache: 'no-store' })
+  
+  // Construct absolute URL for Server Component fetch
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.VERCEL_URL 
+    ? `https://${process.env.VERCEL_URL}` 
+    : 'http://localhost:3000'
+  
+  const res = await fetch(`${baseUrl}/api/result/${id}`, { cache: 'no-store' })
   if (!res.ok) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -21,8 +27,8 @@ export default async function ResultPage({ params }: Props) {
   const data = await res.json()
   const result = data.result
   
-  // Generate share URL
-  const shareUrl = `${process.env.NEXT_PUBLIC_BASE_URL ?? ''}/r/${id}`
+  // Generate share URL (use NEXT_PUBLIC_BASE_URL for client-side access)
+  const shareUrl = `${process.env.NEXT_PUBLIC_BASE_URL || baseUrl}/r/${id}`
   
   return (
     <main className="min-h-screen bg-gray-50 py-8">
