@@ -9,9 +9,8 @@ export default async function ResultPage({ params }: Props) {
   const { id } = await params as { id: string }
   
   // Construct absolute URL for Server Component fetch
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.VERCEL_URL 
-    ? `https://${process.env.VERCEL_URL}` 
-    : 'http://localhost:3000'
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL 
+    || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000')
   
   const res = await fetch(`${baseUrl}/api/result/${id}`, { cache: 'no-store' })
   if (!res.ok) {
