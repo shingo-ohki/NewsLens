@@ -50,3 +50,5 @@ supabase/.temp/
 
 # OS/IDE によるローカルキャッシュ
 .cache/
+
+.ideas/
