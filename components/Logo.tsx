@@ -23,6 +23,13 @@ const logoFiles: Record<LogoVariant, string> = {
   monochrome: '/newslens-monochrome.png',
 }
 
+// アスペクト比（幅：高さ）
+const aspectRatioMap: Record<LogoVariant, number> = {
+  icon: 112 / 113,
+  horizontal: 309 / 85,
+  monochrome: 311 / 93,
+}
+
 export function Logo({
   variant = 'horizontal',
   size = 'md',
@@ -30,12 +37,14 @@ export function Logo({
   className = '',
 }: LogoProps) {
   const height = sizeMap[size]
+  const width = Math.round(height * aspectRatioMap[variant])
   const src = logoFiles[variant]
 
   return (
     <Image
       src={src}
       alt="NewsLens"
+      width={width}
       height={height}
       className={className}
       style={{ opacity }}
