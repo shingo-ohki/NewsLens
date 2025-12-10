@@ -1,24 +1,30 @@
 import { Readability } from '@mozilla/readability'
-import type { JSDOM as JSdomType } from 'jsdom'
 import type { ExtractionResult } from './types'
 
 // Dynamically import JSDOM to avoid ESM compatibility issues
-let JSDOMClass: typeof JSdomType | null = null
-
-async function getJSDOM(): Promise<typeof JSdomType> {
-  if (!JSDOMClass) {
+// Using a function to defer the import until runtime
+async function getJSDOM() {
+  try {
+    // Try dynamic import first (works in most environments)
+    const { JSDOM } = await import('jsdom')
+    return JSDOM
+  } catch (err: any) {
+    const isDebug = process.env.DEBUG_LLM === 'true'
+    if (isDebug) {
+      console.error('[DEBUG] Failed to import jsdom:', err.message || err)
+    }
+    // Fallback: Try CommonJS require (for Vercel compatibility)
     try {
-      const jsdom = await import('jsdom')
-      JSDOMClass = jsdom.JSDOM
-    } catch (err: any) {
-      const isDebug = process.env.DEBUG_LLM === 'true'
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const jsdom = require('jsdom')
+      return jsdom.JSDOM
+    } catch (requireErr: any) {
       if (isDebug) {
-        console.error('[DEBUG] Failed to import jsdom:', err)
+        console.error('[DEBUG] Failed to require jsdom:', requireErr.message || requireErr)
       }
       throw new Error('jsdomのインポートに失敗しました。')
     }
   }
-  return JSDOMClass
 }
 
 const TIMEOUT_MS = 10_000
@@ -164,7 +170,7 @@ export async function extractArticleContent(url: string): Promise<ExtractionResu
     const html = await res.text()
     if (!html || html.trim().length === 0) return toFail('HTMLを取得できませんでした。')
 
-    let JSdom: typeof JSdomType
+    let JSdom: any
     try {
       JSdom = await getJSDOM()
     } catch (err: any) {
