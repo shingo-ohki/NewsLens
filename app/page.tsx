@@ -57,89 +57,124 @@ export default function HomePage() {
   }
 
   return (
-    <main style={{ padding: 20 }}>
-      <h1>NewsLens — Analyze</h1>
-      <div style={{ marginBottom: 12, display: 'flex', gap: 8 }}>
-        <button 
-          onClick={() => setInputMode('url')} 
-          disabled={inputMode === 'url'}
-          aria-pressed={inputMode === 'url'}
-        >
-          URLから抽出
-        </button>
-        <button 
-          onClick={() => setInputMode('text')} 
-          disabled={inputMode === 'text'}
-          aria-pressed={inputMode === 'text'}
-        >
-          テキスト直接入力
-        </button>
-      </div>
-
-      {inputMode === 'url' ? (
-        <div style={{ marginBottom: 8 }}>
-          <input
-            type="url"
-            placeholder="https://example.com/article"
-            value={urlInput}
-            onChange={(e) => setUrlInput(e.target.value)}
-            style={{ width: '100%', padding: 8 }}
-          />
-        </div>
-      ) : (
-        <div>
-          <textarea
-            rows={10}
-            cols={80}
-            placeholder="Paste article text here..."
-            value={inputText}
-            onChange={(e) => setInputText(e.target.value)}
-          />
-        </div>
-      )}
-      <div style={{ marginTop: 8 }}>
-        <button onClick={handleAnalyze} disabled={inputMode === 'url' ? !urlInput.trim() : !inputText.trim()}>Analyze</button>
-      </div>
-
-      {rawOutput && (
-        <section style={{ marginTop: 20 }}>
-          <h2>Raw LLM Output</h2>
-          <pre style={{ whiteSpace: 'pre-wrap', background: '#f5f5f5', padding: 12 }}>{rawOutput}</pre>
-        </section>
-      )}
-
-      {validated && warnings.length > 0 && (
-        <section style={{ marginTop: 16, background: '#fff9e6', padding: 12, border: '1px solid #f0e0b2' }}>
-          <h3>Warnings</h3>
-          <ul>
-            {warnings.map((w, i) => <li key={i}>{w}</li>)}
-          </ul>
-        </section>
-      )}
-
-      {validated && result && (
-        <section style={{ marginTop: 20 }}>
-          <h2>Validated Result</h2>
-          <div style={{ marginBottom: 8 }}>
-            <button onClick={handleSave}>Save result</button>
+    <main className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header with logo space */}
+        <div className="flex items-center gap-4 mb-8">
+          <div className="flex items-center gap-3">
+            {/* ロゴを追加する場合はここのコメントを外す */}
+            {/* <img src="/logo.svg" alt="NewsLens" className="h-8 w-auto" width="32" height="32" /> */}
+            <h1 className="text-3xl font-bold text-gray-900">NewsLens</h1>
+            <span className="text-sm text-gray-500 font-normal">ニュースを構造化して理解する</span>
           </div>
-          <ResultRenderer result={result} />
-        </section>
-      )}
+        </div>
+        
+        {/* Tab UI for input mode */}
+        <div className="flex border-b border-gray-200 mb-6">
+          <button 
+            onClick={() => setInputMode('url')} 
+            className={`px-4 py-2 font-medium text-sm border-b-2 transition ${
+              inputMode === 'url' 
+                ? 'border-blue-600 text-blue-600' 
+                : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
+            aria-pressed={inputMode === 'url'}
+          >
+            URLから抽出
+          </button>
+          <button 
+            onClick={() => setInputMode('text')} 
+            className={`px-4 py-2 font-medium text-sm border-b-2 transition ${
+              inputMode === 'text' 
+                ? 'border-blue-600 text-blue-600' 
+                : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
+            aria-pressed={inputMode === 'text'}
+          >
+            テキスト直接入力
+          </button>
+        </div>
 
-      {!validated && errors.length > 0 && (
-        <section style={{ marginTop: 20, background: '#ffe6e6', padding: 12, border: '1px solid #e0b2b2' }}>
-          <h2>⚠️ バリデーションエラー</h2>
-          <ul>
-            {errors.map((e: any, i: number) => (
-              <li key={i}>
-                {typeof e === 'string' ? e : e.message || JSON.stringify(e)}
-              </li>
-            ))}
-          </ul>
-          <p style={{ marginTop: 8, fontSize: 12, color: '#666' }}>詳細はサーバーログをご確認ください。</p>
-        </section>
-      )}
+        {/* Input fields */}
+        {inputMode === 'url' ? (
+          <div className="mb-4">
+            <input
+              type="url"
+              placeholder="https://example.com/article"
+              value={urlInput}
+              onChange={(e) => setUrlInput(e.target.value)}
+              className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+        ) : (
+          <div className="mb-4">
+            <textarea
+              rows={10}
+              placeholder="Paste article text here..."
+              value={inputText}
+              onChange={(e) => setInputText(e.target.value)}
+              className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+        )}
+
+        {/* Analyze button */}
+        <div className="mb-8">
+          <button 
+            onClick={handleAnalyze} 
+            disabled={inputMode === 'url' ? !urlInput.trim() : !inputText.trim()}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-3 rounded-md transition disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            分析する
+          </button>
+        </div>
+
+        {/* Warnings */}
+        {validated && warnings.length > 0 && (
+          <section className="bg-yellow-50 border-l-4 border-yellow-400 p-4 my-4">
+            <h3 className="text-lg font-semibold text-yellow-800 mb-2">警告</h3>
+            <ul className="list-disc pl-5 space-y-1 text-yellow-700">
+              {warnings.map((w, i) => <li key={i}>{w}</li>)}
+            </ul>
+          </section>
+        )}
+
+        {/* Validated Result */}
+        {validated && result && (
+          <section className="mt-8">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">解析結果</h2>
+              <button 
+                onClick={handleSave}
+                className="bg-green-600 hover:bg-green-700 text-white font-medium px-4 py-2 rounded-md transition"
+              >
+                結果を保存
+              </button>
+            </div>
+            <ResultRenderer result={result} />
+            
+            {/* Raw LLM Output - 折りたたみ可能、下部に配置 */}
+            {rawOutput && (
+              <details className="mt-8 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <summary className="cursor-pointer text-gray-600 hover:text-gray-800 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 rounded mb-2">
+                  技術的詳細を表示（Raw LLM Output）
+                </summary>
+                <pre className="whitespace-pre-wrap bg-gray-50 p-4 rounded text-sm text-gray-700 overflow-x-auto mt-4">{rawOutput}</pre>
+              </details>
+            )}
+          </section>
+        )}
+
+        {/* Errors */}
+        {!validated && errors.length > 0 && (
+          <section className="bg-red-50 border-l-4 border-red-400 p-4 my-4">
+            <h2 className="text-lg font-semibold text-red-800 mb-2">エラー</h2>
+            <ul className="list-disc pl-5 space-y-1 text-red-700">
+              {errors.map((e: any, i: number) => <li key={i}>{JSON.stringify(e)}</li>)}
+            </ul>
+          </section>
+        )}
+      </div>
     </main>
   )
 }
