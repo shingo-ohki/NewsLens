@@ -11,17 +11,25 @@ export default function EnvBanner() {
     let resolvedLabel: string | null = null
     let resolvedColor = "#ff8800"
 
-    // Only show banner for local dev and Vercel deployments.
-    // Do NOT indicate "mock" status here — user requested no mock notification.
+    // Only show banner for local dev and Vercel preview deployments
     if (host.includes("localhost") || host === "127.0.0.1") {
       resolvedLabel = "Local"
       resolvedColor = "#ff8800"
-    } else if (host.endsWith(".vercel.app") || host.includes("vercel.app")) {
-      const isPreview = host.split(".")[0].includes("-") || host.split(".")[0].includes("preview")
-      resolvedLabel = isPreview ? "Vercel Preview" : "Vercel"
-      resolvedColor = "#7b61ff"
+    } else if (host.endsWith(".vercel.app")) {
+      // Vercel preview URLs contain "-git-" or multiple hyphens in subdomain
+      // Production URLs are simple: "project-name.vercel.app"
+      const subdomain = host.split(".")[0]
+      const isPreview = subdomain.includes("-git-") || subdomain.split("-").length > 2
+
+      if (isPreview) {
+        resolvedLabel = "Vercel Preview"
+        resolvedColor = "#7b61ff"
+      } else {
+        // Production Vercel deployment: do not show banner
+        resolvedLabel = null
+      }
     } else {
-      // Custom domains / production: do not show banner to avoid confusing end users
+      // Custom domains: do not show banner
       resolvedLabel = null
     }
 
