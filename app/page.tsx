@@ -11,6 +11,19 @@ export default function HomePage() {
   const [inputText, setInputText] = useState('')
   const [urlInput, setUrlInput] = useState('')
   const [inputMode, setInputMode] = useState<'url' | 'text'>('url')
+  
+  // Tab labels mapping
+  const tabLabels = {
+    url: '記事URLで分析する',
+    text: '文章を貼って分析する',
+  } as const
+  
+  // Placeholder text mapping
+  const placeholderText = {
+    url: '記事URLを貼ると、内容を抽出して分析します。',
+    text: '文章を貼ると、内容をもとに論点を整理します。',
+  } as const
+  
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -103,8 +116,9 @@ export default function HomePage() {
                   : 'border-transparent text-gray-500 hover:text-gray-700'
               }`}
               aria-pressed={inputMode === 'url'}
+              aria-label={tabLabels.url}
             >
-              URLから抽出
+              {tabLabels.url}
             </button>
             <button 
               onClick={() => { setInputMode('text'); setError(null); }} 
@@ -114,8 +128,9 @@ export default function HomePage() {
                   : 'border-transparent text-gray-500 hover:text-gray-700'
               }`}
               aria-pressed={inputMode === 'text'}
+              aria-label={tabLabels.text}
             >
-              テキスト直接入力
+              {tabLabels.text}
             </button>
           </div>
         </div>
@@ -129,20 +144,20 @@ export default function HomePage() {
             {inputMode === 'url' ? (
               <input
                 type="url"
-                placeholder="https://example.com/article"
+                placeholder={placeholderText.url}
                 value={urlInput}
                 onChange={(e) => setUrlInput(e.target.value)}
                 disabled={isLoading}
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:cursor-not-allowed"
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:cursor-not-allowed placeholder:text-gray-400"
               />
             ) : (
               <textarea
                 rows={6}
-                placeholder="記事のテキストをここに貼り付けてください"
+                placeholder={placeholderText.text}
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 disabled={isLoading}
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:cursor-not-allowed"
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:cursor-not-allowed placeholder:text-gray-400"
               />
             )}
           </div>
