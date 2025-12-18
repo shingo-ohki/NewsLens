@@ -45,56 +45,42 @@ test.describe('Analyze flow', () => {
       })
     })
 
-    // Intercept GET /api/result/test-123 to return the sample result JSON
-    await page.route('**/api/result/test-123', (route) => {
-      route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({ result: SAMPLE_RESULT }),
-      })
-    })
-
-    // Intercept navigation to /r/test-123 (SSR would fetch from server). Return a small HTML page
-    // to simulate the final user experience without requiring a Supabase instance.
+    // Intercept navigation to /r/test-123.
+    // App RouterのServer Componentはサーバー側で /api/result/:id をfetchするため、
+    // Playwrightのpage.routeではそのサーバーfetchを直接モックできない。
+    // Supabase無しで「遷移が発生した」ことを検証するため、/r/:id のHTMLをスタブする。
     await page.route('**/r/test-123**', (route) => {
-      const html = `<html><head><title>Result test-123</title></head><body><h1>NewsLens Result — test-123</h1><section><h2>Summary</h2><p><strong>100:</strong> 要点（短）</p></section></body></html>`
-      route.fulfill({ status: 200, contentType: 'text/html', body: html })
+      const html = `<html><head><meta charset="UTF-8" /><title>Result test-123</title></head><body><h1>解析結果</h1><p>stubbed result page (test-123)</p></body></html>`
+      route.fulfill({ status: 200, contentType: 'text/html; charset=utf-8', body: html })
     })
 
-    // Handle alert dialog for saving
-    const dialogs: string[] = []
-    page.on('dialog', async (dialog) => {
-      dialogs.push(dialog.message())
-      await dialog.accept()
-    })
+    // リクエスト検証用の待ち合わせ
+    const analyzeRequestPromise = page.waitForRequest((req) => req.url().includes('/api/analyze') && req.method() === 'POST')
+    const saveRequestPromise = page.waitForRequest((req) => req.url().includes('/api/result') && req.method() === 'POST')
 
     await page.goto('/')
     // Switch to text input mode
-    await page.locator('button', { hasText: 'テキスト直接入力' }).click()
+    await page.locator('button', { hasText: '文章を貼って分析する' }).click()
     // Ensure textarea is available
     const textarea = page.locator('textarea')
     await expect(textarea).toBeVisible()
     await textarea.fill(ARTICLE_TEXT)
-    await page.locator('button', { hasText: 'Analyze' }).click()
+    await page.getByRole('button', { name: '分析する', exact: true }).click()
 
-    // Wait for validated result section (client side)
-    const validatedSection = page.locator('section', { hasText: 'Validated Result' })
-    await expect(validatedSection).toBeVisible()
-    await expect(validatedSection.locator('text=要点（短）')).toBeVisible()
+    // /api/analyze のリクエストボディが inputText であること
+    const analyzeReq = await analyzeRequestPromise
+    const analyzeBody = analyzeReq.postDataJSON() as any
+    expect(analyzeBody).toMatchObject({ inputText: ARTICLE_TEXT })
 
-    // Click save which triggers POST /api/result; our route intercept returns result_id
-    await page.locator('button', { hasText: 'Save result' }).click()
+    // /api/result が呼ばれること（自動保存）
+    const saveReq = await saveRequestPromise
+    const saveBody = saveReq.postDataJSON() as any
+    expect(saveBody).toHaveProperty('result')
 
     // Wait for redirect to /r/test-123
     await page.waitForURL('**/r/test-123')
 
-    // Now the page should fetch the mocked GET /api/result/test-123 and render the result
-    await expect(page.locator('h1')).toContainText('test-123')
-    const resultSummary = page.locator('section', { hasText: 'Summary' })
-    await expect(resultSummary).toBeVisible()
-    await expect(resultSummary.locator('text=100:')).toBeVisible()
-
-    // Confirm that an alert dialog was shown with the test id
-    expect(dialogs.some((d) => d.includes('test-123'))).toBeTruthy()
+    // 遷移先がロードされていること（スタブHTML）
+    await expect(page.locator('h1')).toHaveText('解析結果')
   })
 })

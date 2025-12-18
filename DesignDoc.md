@@ -272,7 +272,10 @@ X（旧Twitter）のコミュニティノートのような補足・警告カー
 
 #### 6.3.5 MVP 範囲
 
-最大3件のノート生成
+※現状の実装では Notes は未実装。
+このセクションは Phase 2 以降の実装対象として扱う。
+
+（Phase 2 初期範囲）最大3件のノート生成
 
 - 4種類の note type
 - 自動トリガーの基本スコアリング
@@ -329,9 +332,21 @@ X（旧Twitter）のコミュニティノートのような補足・警告カー
 ## 10. API 方針 (API Strategy)
 
 ### POST /api/analyze
-- 入力：URL or 本文  
-- 処理：抽出 → 正規化 → LLM 解析  
-- 出力：JSON + result_id  
+- 入力：URL or 本文（どちらか一方のみ）
+- 処理：抽出（URL時）→ LLM 解析 → JSON 抽出 → スキーマ検証（必要に応じて 1 回だけ補正リトライ）
+- 出力：
+  - validated（boolean）
+  - result（validated=true のときのみ）
+  - rawOutput（LLMの生出力。デバッグ用途）
+  - warnings（抽出時の注意。例：本文が短い/長い等）
+  - model / isUsingMockLLM（実装依存）
+
+※現状の実装では、開発/デモ環境で USE_MOCK_LLM=true の場合はモック応答を返す（入力内容に依存しない固定結果になることがある）。
+
+### POST /api/result
+- 入力：result（解析結果JSON）
+- 処理：Supabase に保存し result_id を発行
+- 出力：result_id
 
 ### GET /api/result/:id
 - 保存済み解析結果を返却  
@@ -352,12 +367,16 @@ X（旧Twitter）のコミュニティノートのような補足・警告カー
 | extraction_status | success / fail |
 | created_at | 作成日時 |
 
+※現状の実装では article への保存は未実装（将来拡張用）。
+
 ### analysis_result table
 | column | description |
 |--------|-------------|
 | result_id | 結果ページ用短縮 ID |
 | json_result | 解析結果 JSON |
-| version_id | LLM / Schema バージョン |
+| version_id | LLM / Schema バージョン（任意） |
+| schema_version | スキーマバージョン（任意） |
+| model | 使用モデル名（任意） |
 | created_at | 作成日時 |
 
 ---
@@ -381,7 +400,7 @@ X（旧Twitter）のコミュニティノートのような補足・警告カー
 
 - 抽出失敗時は本文コピペを要求  
 - 500 字未満 → 警告  
-- 5000 字超 → 要約抽出モード  
+- 5000 字超 → 警告（現状は自動で要約抽出モードへ切り替えない）
 - 非ニュース記事 → 警告  
 - URL だけ渡して LLM 推測は禁止  
 
@@ -429,15 +448,23 @@ X（旧Twitter）のコミュニティノートのような補足・警告カー
 - CausalMapTree  
 - ShareURLButton  
 - ResultCardMeta  
-- NotesSection（Bias & Context Notes）
+
+※NotesSection（Bias & Context Notes）は Phase 2 以降の対象。
+
+#### 13.2.1 ホーム画面（現状実装のUI文言）
+- 入力モード切替（タブ）
+  - 「記事URLで分析する」
+  - 「文章を貼って分析する」
+- 実行ボタン
+  - 「分析する」（実行中は「分析中...」）
 
 ### 13.3 共有 UI
 - /r/:result_id ページ  
 - Summary / Issues / Stances をコンパクトに 
-- NotesSection を Summary 下に表示
 - SNS 共有ボタン  
 
 ### 13.4 Notes UI（コミュニティノート風 補足・警告）［新規］
+※Phase 2 以降の対象（現状の実装では未表示）。
 #### 13.4.1 デザイン原則
 - 過度に主張しないが見逃されない
 - “批判”ではなく“理解補助”として表示
@@ -551,15 +578,15 @@ X（旧Twitter）のコミュニティノートのような補足・警告カー
 
 ## 14. ワークフロー (Workflow)
 
-1. URL / テキスト入力  
-2. 本文抽出  
-3. 正規化  
-4. LLM 分析  
-5. JSON バリデーション  
-6. JSON Correction Flow  
-7. Supabase 保存  
-8. result_id 発行  
-9. 結果ページ生成  
+1. URL / テキスト入力
+2. 本文抽出（URL入力時のみ）
+3. LLM 分析
+4. JSON 抽出
+5. JSON バリデーション
+6. JSON Correction Flow（必要に応じて 1 回だけ再試行）
+7. クライアントが POST /api/result で Supabase に保存
+8. result_id を受け取り /r/:result_id へ遷移
+9. /r/:result_id が GET /api/result/:id で結果を取得して表示
 
 ---
 
@@ -603,10 +630,6 @@ Phase 1 の NewsLens は、以下を満たせば完成と見なす：
   - 論点（issues）が複数可視化される
   - 賛否・立場の混在が把握できる
   - 不確実性が明示される
-- Bias & Context Notes が
-  - 最大 1〜2 件で
-  - 誘導や断定を行わず
-  - 「別の見方がある」ことを示せている
 - ユーザーが
   - 読後に少なくとも 1 つ「自分の問い」を持てる状態になる
   - ニュースを読んだ後に「分かった」という感覚ではなく、「もう少し考えたい」「問いが整理されてきた」という状態に入れていること
