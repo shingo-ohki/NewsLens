@@ -1,4 +1,4 @@
- 
+
 # 📘 NewsLens — Design Doc
 
 ## Table of Contents
@@ -108,8 +108,8 @@ NewsLens は単なる要約ツールではない。
 **NewsLens の使命は、ニュースを理解させることではない。ニュースを「考え続けられる状態」に人を導くことである。**
 
 - 複雑なニュースに対して、誰もが「入口に立てる」状態をつくる
-- 情報の偏り・誤解・断片化による分断を減らす  
-- 判断を揃えるためではなく、議論が分断に陥らないための認知的前提を整える  
+- 情報の偏り・誤解・断片化による分断を減らす
+- 判断を揃えるためではなく、議論が分断に陥らないための認知的前提を整える
 - 初心者・専門家を問わず「深い理解」を支援する
 - 「分からないから意見を持てない」という状態を減らし、
 - 社会的テーマに対する 自分なりの立場・解釈 へ到達するための橋渡しを行う
@@ -128,11 +128,11 @@ NewsLens の使命は、ニュースを理解させることではない。ニ�
 
 ## 3. コアバリュー (Core Values)
 
-- **透明性**：どの情報をどう構造化したかを明示（JSON 出力）  
-- **再現性**：テンプレート / バリデーション / 例外処理  
-- **アクセシビリティ**：誰でも深い構造で理解できる  
-- **拡張性**：比較・可視化・対話マップへの展開が容易  
-- **ガイドレール思考**：自由生成ではなく構造化生成を重視  
+- **透明性**：どの情報をどう構造化したかを明示（JSON 出力）
+- **再現性**：テンプレート / バリデーション / 例外処理
+- **アクセシビリティ**：誰でも深い構造で理解できる
+- **拡張性**：比較・可視化・対話マップへの展開が容易
+- **ガイドレール思考**：自由生成ではなく構造化生成を重視
 - 理解の助走路
 
 ニュース理解の最も大きなボトルネックは「前提が分からない」ことである。
@@ -205,42 +205,43 @@ NewsLens の構造化出力は、答えを与えるためではなく、「問�
 
 | ペルソナ | ニーズ / 課題 |
 |---------|----------------|
-| 一般読者 | 短時間で要点・論点・影響を理解したい |
-| SNS 情報に流されがちな人 | 偏りなく整理された事実が欲しい |
+| 一般生活者（断片接触が多い） | 見出し・SNS断片から入ることが多く、初手の印象で理解が早期に閉じやすい。論点・立場・不確実性を同時に見て、決めつけずに理解を開始したい |
+| 一般生活者（関心はあるが追えていない） | 争点や因果が複雑で「気になるがスルー」になりやすい。短時間で要点→論点→構造を掴みたい |
 | 教育者・学生 | 構造化ニュースを教材として活用したい |
-| ジャーナリスト・研究者 | 複数記事比較のための構造化データが欲しい |
-| NPO / 市民活動家 | 社会課題の因果・価値観・立場を整理したい |
+| ジャーナリスト・研究者 | 比較・検証のための構造化データが欲しい |
+| NPO / 市民活動家 | 社会課題の因果・価値観・立場を整理し、説明・対話の土台にしたい |
 
 ---
 
 ## 5. ユースケース (Use Cases)
 
-- 通勤中にニュースの「要点 → 論点 → 構造」を 5 分で把握  
-- SNS で流れてきた記事の信頼性をチェック  
-- 教材としてニュースの構造を説明  
-- 社会課題の記事を媒体別に比較（Phase 2）  
-- 論点・立場・価値観の対話マップ生成（Phase 3）  
+- 通勤中にニュースの「要点 → 論点 → 構造」を 5 分で把握
+- SNS で流れてきた記事の信頼性をチェック
+- 教材としてニュースの構造を説明
+- 見出しやSNS断片で形成された「わかった気」を、論点・立場・不確実性の並置でほどき、検討に入る
+- 社会課題の記事を媒体別に比較（Phase 2）
+- 論点・立場・価値観の対話マップ生成（Phase 3）
 
 ---
 
 ## 6. 機能要件 (Functional Requirements)
 
 ### 6.1 MVP 必須機能
-- URL / 本文テキスト入力  
-- URL 入力時の本文抽出  
-- LLM によるニュース構造化分析  
-- JSON スキーマに沿った厳密な構造化出力  
-- 階層的 UI 表示（Summary → Issues → …）  
-- 結果 URL 発行  
-- SNS 共有機能（X, Facebook, LINE）  
+- URL / 本文テキスト入力
+- URL 入力時の本文抽出
+- LLM によるニュース構造化分析
+- JSON スキーマに沿った厳密な構造化出力
+- 階層的 UI 表示（Summary → Issues → …）
+- 結果 URL 発行
+- SNS 共有機能（X, Facebook, LINE）
 
 ### 6.2 将来拡張（Phase 2+）
-- 複数記事比較（NewsSphere）  
-- バイアス・論調の可視化  
-- 社会対話マップ生成（PublicSense）  
-- OGP 画像自動生成  
-- コメント / 議論機能  
-- ニュースクラスタリング  
+- 複数記事比較（NewsSphere）
+- バイアス・論調の可視化
+- 社会対話マップ生成（PublicSense）
+- OGP 画像自動生成
+- コメント / 議論機能
+- ニュースクラスタリング
 
 
 ### 6.3 Bias & Context Notes（理解前段ノート）
@@ -313,40 +314,40 @@ X（旧Twitter）のコミュニティノートに近い形式で、補足とし
 
 ## 7. 非機能要件 (Non-Functional Requirements)
 
-- **応答時間**：10〜数十秒  
-- **信頼性**：抽出 / JSON 整形成功率の改善  
-- **コスト**：LLM API コスト最適化  
-- **セキュリティ**：URL / 本文テキストの安全管理  
-- **スケーラビリティ**：Supabase + Vercel 基盤  
+- **応答時間**：10〜数十秒
+- **信頼性**：抽出 / JSON 整形成功率の改善
+- **コスト**：LLM API コスト最適化
+- **セキュリティ**：URL / 本文テキストの安全管理
+- **スケーラビリティ**：Supabase + Vercel 基盤
 
 ---
 
 ## 8. 全体アーキテクチャ (System Architecture)
 
-- **Frontend**：Next.js 16, React 19, Tailwind 4  
-- **Backend**：Next.js API Routes  
-- **本文抽出**：Mercury Parser / Readability  
-- **LLM Engine**：OpenAI API（モデルは動的選定）  
-- **Storage**：Supabase  
-- **Hosting**：Vercel  
+- **Frontend**：Next.js 16, React 19, Tailwind 4
+- **Backend**：Next.js API Routes
+- **本文抽出**：Mercury Parser / Readability
+- **LLM Engine**：OpenAI API（モデルは動的選定）
+- **Storage**：Supabase
+- **Hosting**：Vercel
 
 ---
 
 ## 9. システム構成 (System Components)
 
 ### フロントエンド
-- URLInput  
-- ArticleTextArea  
-- StartAnalysisButton  
-- SummaryBlock  
-- KeyPointsList …  
+- URLInput
+- ArticleTextArea
+- StartAnalysisButton
+- SummaryBlock
+- KeyPointsList …
 
 ### バックエンド
-- extraction module  
-- llm analyzer  
-- json validator  
-- json correction flow  
-- result save API  
+- extraction module
+- llm analyzer
+- json validator
+- json correction flow
+- result save API
 
 ---
 
@@ -370,11 +371,11 @@ X（旧Twitter）のコミュニティノートに近い形式で、補足とし
 - 出力：result_id
 
 ### GET /api/result/:id
-- 保存済み解析結果を返却  
+- 保存済み解析結果を返却
 
 ### JSON Correction Flow
-- JSON パース失敗 → LLM に修正依頼 → バリデーション再試行  
-- それでも失敗 → UI に通知  
+- JSON パース失敗 → LLM に修正依頼 → バリデーション再試行
+- それでも失敗 → UI に通知
 
 ---
 
@@ -408,45 +409,45 @@ X（旧Twitter）のコミュニティノートに近い形式で、補足とし
 
 生成順序（固定）：
 
-1. summary（100 / 300 / 600）  
-2. key_points  
-3. actors  
-4. issues  
-5. stances  
-6. causal_map  
-7. underlying_values  
-8. uncertainties  
+1. summary（100 / 300 / 600）
+2. key_points
+3. actors
+4. issues
+5. stances
+6. causal_map
+7. underlying_values
+8. uncertainties
 
 ### 12.2 Text Extraction Exception Policy
 
-- 抽出失敗時は本文コピペを要求  
-- 500 字未満 → 警告  
+- 抽出失敗時は本文コピペを要求
+- 500 字未満 → 警告
 - 5000 字超 → 警告（現状は自動で要約抽出モードへ切り替えない）
-- 非ニュース記事 → 警告  
-- URL だけ渡して LLM 推測は禁止  
+- 非ニュース記事 → 警告
+- URL だけ渡して LLM 推測は禁止
 
 ### 12.3 LLM I/O Policy（モデル選定・禁止事項）
 
 **禁止事項：**
 
-- 本文にない事実の補足  
-- 憶測で新しい actor を追加  
-- 感情的評価・価値判断  
-- 政治的なラベリング  
+- 本文にない事実の補足
+- 憶測で新しい actor を追加
+- 感情的評価・価値判断
+- 政治的なラベリング
 
 **出力は JSON のみ（自然文禁止）**
 
 ### 12.4 Result Integrity Policy
 
-- version_id と schema_version を必ず付与  
-- モデル更新時は回帰テスト  
-- 変動が大きい場合は rollback 可能にする  
+- version_id と schema_version を必ず付与
+- モデル更新時は回帰テスト
+- 変動が大きい場合は rollback 可能にする
 
 ### 12.5 Safety & Ethics
 
-- 本文以外の推測禁止  
-- 不確実性は uncertainties に隔離  
-- NewsLens 自身は立場を取らない  
+- 本文以外の推測禁止
+- 不確実性は uncertainties に隔離
+- NewsLens 自身は立場を取らない
 - NewsLens はユーザーの「問い」を自動生成しない
 - 問いは提示されるものではなく、立ち上がるものである
 - 構造化は問いを誘導するためではなく、思考の余白を確保するために行う
@@ -456,19 +457,19 @@ X（旧Twitter）のコミュニティノートに近い形式で、補足とし
 ## 13. UI/UX デザインガイドライン (UI Design System)
 
 ### 13.1 基本方針
-- 階層構造が直感的に見える  
-- モバイル最適  
+- 階層構造が直感的に見える
+- モバイル最適
 - 「解析 → 理解 → 共有」を短く
 - バイアスや背景を“敵意なく補足する”デザイン
 - 情報を押し付けない、選択可能な UI
 
 ### 13.2 コンポーネント
-- URLInput  
-- SummaryBlock  
-- IssuesList  
-- CausalMapTree  
-- ShareURLButton  
-- ResultCardMeta  
+- URLInput
+- SummaryBlock
+- IssuesList
+- CausalMapTree
+- ShareURLButton
+- ResultCardMeta
 
 ※NotesSection（Bias & Context Notes）は Phase 2 以降の対象。
 
@@ -480,9 +481,9 @@ X（旧Twitter）のコミュニティノートに近い形式で、補足とし
   - 「分析する」（実行中は「分析中...」）
 
 ### 13.3 共有 UI
-- /r/:result_id ページ  
-- Summary / Issues / Stances をコンパクトに 
-- SNS 共有ボタン  
+- /r/:result_id ページ
+- Summary / Issues / Stances をコンパクトに
+- SNS 共有ボタン
 
 ### 13.4 Notes UI（コミュニティノート風 補足・警告）［新規］
 ※Phase 2 以降の対象（現状の実装では未表示）。
@@ -528,18 +529,18 @@ X（旧Twitter）のコミュニティノートに近い形式で、補足とし
 
 #### 13.6.1 目的（Purpose）
 
-この画面の目的は、ニュースを「理解させる」ことではない。  
+この画面の目的は、ニュースを「理解させる」ことではない。
 ユーザーを **ニュースについて考え続けられる状態** に導くことである。
 
-- 結論を提示しない  
-- 重要度を決めない  
-- 対立構造を強制しない  
+- 結論を提示しない
+- 重要度を決めない
+- 対立構造を強制しない
 
-代わりに、ニュースを構成する複数の要素  
-（論点・立場・因果・価値観・不確実性）を  
+代わりに、ニュースを構成する複数の要素
+（論点・立場・因果・価値観・不確実性）を
 **並置された構造として一望できる状態** を提供する。
 
-この画面は、NewsLens における「理解の入口」であり、  
+この画面は、NewsLens における「理解の入口」であり、
 思考の方向性を決める場所ではない。
 
 ---
@@ -613,37 +614,43 @@ X（旧Twitter）のコミュニティノートに近い形式で、補足とし
 
 ## 15. 運用・モニタリング (Operations & Monitoring)
 
-- 抽出成功率  
-- LLM 応答時間  
-- JSON パースエラー率  
-- API コスト  
-- 結果ページ閲覧数・共有数  
+NewsLens は、解析の安定性だけでなく、
+ユーザーが「理解が閉じない入口」に入れているかを継続的に観測し、改善に活用する。
 
-これらを継続改善に活用する。
+- 抽出成功率
+- LLM 応答時間
+- JSON パースエラー率
+- API コスト
+- 結果ページ閲覧数・共有数
+
+- 原文クリック率（追加確認行動）
+- 滞在時間（読み込み・検討の継続）
+- セクション開閉率（Issues / Stances / Uncertainties）
+  - Summary 以外の構造が実際に参照されているかの指標
 
 ---
 
 ## 16. ロードマップ (Roadmap)
 
 ### Phase 1 — NewsLens（MVP）
-- 単一記事解析  
-- JSON 構造化  
-- 結果 URL 生成  
+- 単一記事解析
+- JSON 構造化
+- 結果 URL 生成
 
 ### Phase 2 — NewsSphere
-- 複数記事比較  
-- 論調・バイアス可視化  
-- ニュースクラスタリング  
+- 複数記事比較
+- 論調・バイアス可視化
+- ニュースクラスタリング
 
 ### Phase 3 — PublicSense
-- 立場・価値観マップ  
-- 対話構造可視化  
-- 広聴AIとの連携  
+- 立場・価値観マップ
+- 対話構造可視化
+- 広聴AIとの連携
 
 ### Phase 4 — 拡張
-- 教育用パッケージ  
-- API 公開  
-- 動画・音声ニュースへ対応  
+- 教育用パッケージ
+- API 公開
+- 動画・音声ニュースへ対応
 
 ### MVP 完成条件（Validation Criteria）
 Phase 1 の NewsLens は、以下を満たせば完成と見なす：
@@ -662,19 +669,46 @@ Phase 1 の NewsLens は、以下を満たせば完成と見なす：
 
 ## 17. リスク & 検証ポイント (Risks & Validation)
 
-### 主なリスク
-- 抽出失敗  
-- ハルシネーション  
-- モデル更新による揺れ  
-- JSON 不整形  
-- バイアス再生産  
+### 17.1 主なリスク
+- 抽出失敗
+- ハルシネーション
+- モデル更新による揺れ
+- JSON 不整形
+- バイアス再生産
+- 初手のフレーミング固定化（断片接触・時間制約下での早期確定）
 
-### 対策
-- Text Extraction Policy  
-- LLM I/O Policy  
-- JSON Correction Flow  
-- version_id 管理  
-- uncertainties 分離  
+#### 初手のフレーミング固定化（認知バイアス）
+NewsLens は、最初に提示された要約やフレームがアンカーとなり、
+その後の理解が単一の見取り図に固定されてしまうリスクを前提として扱う。
+
+これは一般有権者に限らず、議員・政策スタッフを含むあらゆるユーザーで起こりうるが、
+特に「見出し/短文/切り抜き」や「ブリーフィング」など、
+断片的かつ時間制約の強い接触の場面で顕在化しやすい。
+
+このリスクは、誤解や決めつけを強め、議論を不必要に単線化させうるため、
+MVP段階から設計上の制約として扱う。
+
+### 17.2 対策
+- Text Extraction Policy
+- LLM I/O Policy
+- JSON Correction Flow
+- version_id 管理
+- uncertainties 分離
+- No Central Answer / Parallel Structure / uncertainties可視化による“初手固定化”の抑制
+
+初手の固定化に対して、UI は Summary を“答え”として強調せず、
+Issues / Stances / Causal Map / Underlying Values / Uncertainties を並置し、
+不確実性も含めた地形を最初から視界に入れる設計を採用する。
+
+### 17.3 検証ポイント（Validation Checks）
+- Summary だけで理解が閉じていないか（単一の結論に見えていないか）
+  - 観測：Summary以外のセクション閲覧率（Issues/Stances/Uncertaintiesの表示・開閉）、早期離脱率
+
+- Issues / Stances / Uncertainties を見た後に、追加確認行動（原文確認/検索）が増えるか
+  - 観測：原文クリック率、滞在時間、結果ページの再訪・共有の発生
+
+- 不確実性が uncertainties に隔離され、他フィールドへ漏れていないか
+  - 観測：スキーマバリデーション＋ルールテスト、サンプリング監査（人手確認）
 
 ---
 
